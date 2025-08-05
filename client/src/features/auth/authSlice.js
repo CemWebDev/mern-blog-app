@@ -1,11 +1,12 @@
 import * as authService from '../../services/authService.js';
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { jwtDecode } from 'jwt-decode';
 
 const initialState = {
   user: null,
   token: null,
   isLoading: false,
-  error: false,
+  isError: false,
   message: '',
 };
 
@@ -46,6 +47,14 @@ const authSlice = createSlice({
       state.isError = false;
       state.message = '';
     },
+    setCredentials: (state, action) => {
+      const token = action.payload;
+      state.token = token;
+      state.user = jwtDecode(token);
+      state.isError = false;
+      state.isLoading = false;
+      state.message = '';
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -82,5 +91,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { resetState } = authSlice.actions;
+export const { resetState, setCredentials } = authSlice.actions;
 export default authSlice.reducer;

@@ -3,6 +3,7 @@ import { AtSign, Lock, User, Github } from 'lucide-react';
 import { useAuthForm } from '../hooks/useAuthForm';
 import AuthLayout from '../layouts/AuthLayout';
 import AuthFields from '../components/Auth/AuthFields';
+import { useAuthActions } from '../hooks/useAuth';
 
 export default function Login() {
   const {
@@ -14,14 +15,13 @@ export default function Login() {
     message,
   } = useAuthForm('login');
 
+  const { signWithGithub } = useAuthActions();
 
-
-  const handleSocialLogin = () => {};
 
   return (
     <AuthLayout
       title="Giriş Yap"
-      onSocialClick={handleSocialLogin}
+      onSocialClick={signWithGithub}
       bottomText="Hesabınız yok mu?"
       bottomLinkText="Buradan oluşturun"
       bottomLinkTo="/register"

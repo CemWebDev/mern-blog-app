@@ -4,6 +4,7 @@ import { User, AtSign, Lock } from 'lucide-react';
 import { useAuthForm } from '../hooks/useAuthForm';
 import AuthLayout from '../layouts/AuthLayout';
 import AuthFields from '../components/Auth/AuthFields';
+import { useAuthActions } from '../hooks/useAuth';
 
 export default function RegisterPage() {
   const { form, onChange, onSubmit, isLoading, isError, message } =
@@ -11,12 +12,11 @@ export default function RegisterPage() {
 
   const [acceptTerms, setAcceptTerms] = useState(false);
 
-  const handleSocialRegister = () => {};
-
+  const { signWithGithub } = useAuthActions();
   return (
     <AuthLayout
       title="Hesap Oluştur"
-      onSocialClick={handleSocialRegister}
+      onSocialClick={signWithGithub}
       bottomText="Zaten hesabınız var mı?"
       bottomLinkText="Buradan giriş yapın"
       bottomLinkTo="/login"

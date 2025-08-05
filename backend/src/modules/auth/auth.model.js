@@ -9,14 +9,21 @@ const userSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    required: true, 
+    required: true,
     unique: true,
     lowercase: true,
     trim: true,
   },
+  githubId: {
+    type: String,
+    unique: true,
+    sparse: true,
+  },
   password: {
     type: String,
-    required: true,
+    required: function () {
+      return !this.githubId;
+    },
     minlength: 6,
   },
   createdAt: {

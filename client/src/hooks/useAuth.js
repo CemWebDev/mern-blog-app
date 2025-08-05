@@ -4,7 +4,9 @@ import {
   registerUser,
   loginUser,
   logoutUser,
+  setCredentials,
 } from '../features/auth/authSlice';
+import { signWithGithub as GitHub } from '../services/authService';
 
 export const useAuth = () => {
   const { token, user, isLoading, isError, message } = useSelector(
@@ -19,5 +21,11 @@ export const useAuthActions = () => {
   const login = (credentials) => dispatch(loginUser(credentials));
   const logout = () => dispatch(logoutUser());
   const reset = () => dispatch(resetState());
-  return { register, login, logout, reset };
+
+  const signWithGithub = () => {
+    GitHub();
+  };
+
+  const applyCredentials = (token) => dispatch(setCredentials(token));
+  return { register, login, logout, reset, signWithGithub, applyCredentials };
 };
