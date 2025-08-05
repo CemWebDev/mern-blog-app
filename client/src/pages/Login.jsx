@@ -1,50 +1,65 @@
 import { Link } from 'react-router-dom';
+import { AtSign, Lock, User, Github } from 'lucide-react';
 import { useAuthForm } from '../hooks/useAuthForm';
+import AuthLayout from '../layouts/AuthLayout';
+import AuthFields from '../components/Auth/AuthFields';
 
-const Login = () => {
-  const { form, onChange, onSubmit, isLoading, isError, message } =
-    useAuthForm('login');
+export default function Login() {
+  const {
+    form,
+    onChange,
+    onSubmit,
+    isLoading,
+    isError,
+    message,
+  } = useAuthForm('login');
+
+
+
+  const handleSocialLogin = () => {};
 
   return (
-    <div >
-      <h2>Login</h2>
+    <AuthLayout
+      title="Giriş Yap"
+      onSocialClick={handleSocialLogin}
+      bottomText="Hesabınız yok mu?"
+      bottomLinkText="Buradan oluşturun"
+      bottomLinkTo="/register"
+      noteText="Giriş yaparak Hizmet Şartları ve Gizlilik Politikası’nı kabul edersiniz"
+    >
+      <AuthFields
+        fields={[
+          {
+            name: 'email',
+            label: 'Email',
+            type: 'email',
+            placeholder: 'Mail adresinizi girin',
+            Icon: AtSign,
+          },
+          {
+            name: 'password',
+            label: 'Şifre',
+            type: 'password',
+            placeholder: 'Şifrenizi girin',
+            Icon: Lock,
+            showToggle: true,
+          },
+        ]}
+        submitLabel="Giriş Yap"
+        isLoading={isLoading}
+        onSubmit={onSubmit}
+        onChange={onChange}
+        formValues={form}
+      />
 
-      <form onSubmit={onSubmit}>
-        <div>
-          <label>Email</label>
-          <br />
-          <input
-            type="email"
-            name="email"
-            value={form.email}
-            onChange={onChange}
-            required
-          />
-        </div>
-        <div>
-          <label>Password</label>
-          <br />
-          <input
-            type="password"
-            name="password"
-            value={form.password}
-            onChange={onChange}
-            required
-          />
-        </div>
-        <button
-          type="submit"
-          disabled={isLoading}
+      <div className="mt-4 text-center">
+        <Link
+          to="/forgot-password"
+          className="text-sm text-green-600 hover:text-green-700 hover:underline"
         >
-          {isLoading ? 'Logging in…' : 'Login'}
-        </button>
-      </form>
-      {isError && <p>{message}</p>}
-      <p>
-        Don’t have an account? <Link to="/auth/register">Register here</Link>
-      </p>
-    </div>
+          Şifremi Unuttum?
+        </Link>
+      </div>
+    </AuthLayout>
   );
-};
-
-export default Login;
+}

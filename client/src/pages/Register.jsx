@@ -1,64 +1,80 @@
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { User, AtSign, Lock } from 'lucide-react';
 import { useAuthForm } from '../hooks/useAuthForm';
+import AuthLayout from '../layouts/AuthLayout';
+import AuthFields from '../components/Auth/AuthFields';
 
-const Register = () => {
+export default function RegisterPage() {
   const { form, onChange, onSubmit, isLoading, isError, message } =
     useAuthForm('register');
 
-  return (
-    <div style={{ maxWidth: 400, margin: '2rem auto' }}>
-      <h2>Register</h2>
-      <form onSubmit={onSubmit}>
-        <div style={{ marginBottom: '1rem' }}>
-          <label>Username</label>
-          <br />
-          <input
-            type="text"
-            name="username"
-            value={form.username}
-            onChange={onChange}
-            required
-            style={{ width: '100%', padding: '0.5rem' }}
-          />
-        </div>
-        <div style={{ marginBottom: '1rem' }}>
-          <label>Email</label>
-          <br />
-          <input
-            type="email"
-            name="email"
-            value={form.email}
-            onChange={onChange}
-            required
-            style={{ width: '100%', padding: '0.5rem' }}
-          />
-        </div>
-        <div style={{ marginBottom: '1rem' }}>
-          <label>Password</label>
-          <br />
-          <input
-            type="password"
-            name="password"
-            value={form.password}
-            onChange={onChange}
-            required
-            style={{ width: '100%', padding: '0.5rem' }}
-          />
-        </div>
-        <button
-          type="submit"
-          disabled={isLoading}
-          style={{ padding: '0.5rem 1rem' }}
-        >
-          {isLoading ? 'Registering…' : 'Register'}
-        </button>
-      </form>
-      {isError && <p style={{ color: 'red', marginTop: '1rem' }}>{message}</p>}
-      <p style={{ marginTop: '1rem' }}>
-        Already have an account? <Link to="/auth/login">Login here</Link>
-      </p>
-    </div>
-  );
-};
+  const [acceptTerms, setAcceptTerms] = useState(false);
 
-export default Register;
+  const handleSocialRegister = () => {};
+
+  return (
+    <AuthLayout
+      title="Hesap Oluştur"
+      onSocialClick={handleSocialRegister}
+      bottomText="Zaten hesabınız var mı?"
+      bottomLinkText="Buradan giriş yapın"
+      bottomLinkTo="/login"
+      noteText="Kayıt olarak Hizmet Şartları ve Gizlilik Politikası’nı kabul etmiş olursunuz"
+    >
+      <AuthFields
+        fields={[
+          {
+            name: 'username',
+            label: 'Kullanıcı Adı',
+            type: 'text',
+            placeholder: 'Kullanıcı adınızı girin',
+            Icon: User,
+          },
+          {
+            name: 'email',
+            label: 'Email',
+            type: 'email',
+            placeholder: 'Mail adresinizi girin',
+            Icon: AtSign,
+          },
+          {
+            name: 'password',
+            label: 'Şifre',
+            type: 'password',
+            placeholder: 'Şifrenizi girin',
+            Icon: Lock,
+            showToggle: true,
+          },
+        ]}
+        acceptTermsConfig={{
+          value: acceptTerms,
+          onChange: (e) => setAcceptTerms(e.target.checked),
+          text: (
+            <>
+              <Link
+                to="/terms"
+                className="text-green-600 hover:text-green-700 underline"
+              >
+                Hizmet Şartları
+              </Link>{' '}
+              ve{' '}
+              <Link
+                to="/privacy"
+                className="text-green-600 hover:text-green-700 underline"
+              >
+                Gizlilik Politikası
+              </Link>{' '}
+              nı kabul ediyorum
+            </>
+          ),
+        }}
+        submitLabel="Hesap Oluştur"
+        isLoading={isLoading}
+        onSubmit={onSubmit}
+        onChange={onChange}
+        formValues={form}
+      />
+    </AuthLayout>
+  );
+}

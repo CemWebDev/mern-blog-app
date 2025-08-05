@@ -9,6 +9,7 @@ export const useAuthForm = (type) => {
       : { username: '', email: '', password: '' };
 
   const [form, setForm] = useState(initialForm);
+  const [showPassword, setShowPassword] = useState(false);
   const { user, isLoading, isError, message } = useAuth();
   const { login, register, reset } = useAuthActions();
   const navigate = useNavigate();
@@ -20,6 +21,10 @@ export const useAuthForm = (type) => {
   useEffect(() => {
     if (user) navigate('/dashboard');
   }, [user, navigate]);
+
+  const togglePassword = () => {
+    setShowPassword((prev) => !prev);
+  }
 
   const onChange = (e) =>
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -33,5 +38,5 @@ export const useAuthForm = (type) => {
     }
   };
 
-  return { form, onChange, onSubmit, isLoading, isError, message };
+  return { form, onChange, onSubmit, isLoading, isError, message, showPassword, togglePassword };
 };
