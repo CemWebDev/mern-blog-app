@@ -55,7 +55,7 @@ export default function Login() {
       <div className="mt-4 text-center">
         <Link
           to="/forgot-password"
-          className="text-sm text-green-600 hover:text-green-700 hover:underline"
+          className="text-sm text-green-700 hover:text-green-800 hover:underline"
         >
           Şifremi Unuttum?
         </Link>

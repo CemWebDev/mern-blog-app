@@ -1,3 +1,4 @@
+import WelcomeCard from '../components/Dashboard/WelcomeCard';
 import { useAuthActions } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 
@@ -24,6 +25,7 @@ const Dashboard = () => {
       >
         Logout
       </button>
+      <WelcomeCard />
     </div>
   );
 };
