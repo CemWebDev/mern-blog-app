@@ -20,7 +20,7 @@ router.get(
     session: false,
   }),
   (req, res) => {
-    const token = signToken({ id: req.user._id });
+    const token = signToken(req.user);
     res.redirect(`${process.env.CLIENT_URL}/oauth-success?token=${token}`);
   }
 );

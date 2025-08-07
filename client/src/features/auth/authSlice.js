@@ -54,6 +54,7 @@ const authSlice = createSlice({
       state.isError = false;
       state.isLoading = false;
       state.message = '';
+      localStorage.setItem('token', token);
     },
   },
   extraReducers: (builder) => {
@@ -62,31 +63,34 @@ const authSlice = createSlice({
         state.isLoading = true;
       })
       .addCase(registerUser.fulfilled, (state, { payload }) => {
-        state.isLoading = false;
-        state.user = payload.user;
-        state.token = payload.token;
+        authSlice.caseReducers.setCredentials(state, {
+          payload: payload.token,
+        });
       })
       .addCase(registerUser.rejected, (state, { payload }) => {
         state.isLoading = false;
         state.isError = true;
         state.message = payload;
       })
+
       .addCase(loginUser.pending, (state) => {
         state.isLoading = true;
       })
       .addCase(loginUser.fulfilled, (state, { payload }) => {
-        state.isLoading = false;
-        state.user = payload.user;
-        state.token = payload.token;
+        authSlice.caseReducers.setCredentials(state, {
+          payload: payload.token,
+        });
       })
       .addCase(loginUser.rejected, (state, { payload }) => {
         state.isLoading = false;
         state.isError = true;
         state.message = payload;
       })
+
       .addCase(logoutUser.fulfilled, (state) => {
         state.user = null;
         state.token = null;
+        localStorage.removeItem('token');
       });
   },
 });
