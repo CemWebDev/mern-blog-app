@@ -13,13 +13,18 @@ passport.use(
     async (accessToken, refreshToken, profile, done) => {
       const githubId = profile.id;
       const email = profile.emails?.[0]?.value;
+      const avatar = profile.photos?.[0]?.value;
       let user = await User.findOne({ githubId });
       if (!user) {
         user = await User.create({
           username: profile.username,
           email,
           githubId,
+          avatarUrl: avatar,
         });
+      } else if (!user.avatarUrl) {
+        user.avatarUrl = avatar; 
+        await user.save();
       }
       return done(null, user);
     }

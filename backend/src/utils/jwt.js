@@ -18,6 +18,8 @@ const signToken = (user) => {
     id: user._id,
     email: user.email,
     username: user.username,
+    avatarUrl: user.avatarUrl,
+    githubId: user.githubId,
   };
   return jwt.sign(payload, process.env.JWT_SECRET, {
     expiresIn: JWT_EXPIRES_IN,

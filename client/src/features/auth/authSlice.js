@@ -38,6 +38,19 @@ export const logoutUser = createAsyncThunk('auth/logoutUser', async () => {
   await authService.logout();
 });
 
+export const uploadAvatar = createAsyncThunk(
+  'auth/uploadAvatar',
+
+  async ({ file, token }, thunkAPI) => {
+    try {
+      const { avatarUrl } = await authService.uploadAvatar(file, token);
+      return avatarUrl;
+    } catch (e) {
+      return thunkAPI.rejectWithValue(e.message);
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -91,6 +104,18 @@ const authSlice = createSlice({
         state.user = null;
         state.token = null;
         localStorage.removeItem('token');
+      })
+      .addCase(uploadAvatar.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(uploadAvatar.fulfilled, (state, { payload }) => {
+        state.isLoading = false;
+        if (state.user) state.user.avatarUrl = payload;
+      })
+      .addCase(uploadAvatar.rejected, (state, { payload }) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = payload;
       });
   },
 });

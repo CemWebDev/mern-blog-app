@@ -26,3 +26,23 @@ export const logout = async () => {
 export const signWithGithub = () => {
   window.location.href = `${API_URL}/api/auth/github`;
 };
+/**
+ * @param {File} file
+ * @returns {Promise<{ avatarUrl: string }>}
+ */
+export const uploadAvatar = async (file) => {
+  console.log(
+    '👉 uploadAvatar calling',
+    axiosInstance.defaults.baseURL + '/avatar/me/'
+  );
+  const formData = new FormData();
+  formData.append('avatar', file);
+
+  const response = await axiosInstance.post('/avatar/me/', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+
+  return response.data;
+};
