@@ -7,9 +7,6 @@ import User from './auth.model.js';
 const router = express.Router();
 const upload = multer({ storage });
 
-console.log('Avatar routes initialized');
-
-
 router.post('/me', protect, upload.single('avatar'), async (req, res, next) => {
   try {
     console.log(req.user)
