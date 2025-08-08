@@ -51,6 +51,7 @@ export const uploadAvatar = createAsyncThunk(
   }
 );
 
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -79,13 +80,15 @@ const authSlice = createSlice({
         authSlice.caseReducers.setCredentials(state, {
           payload: payload.token,
         });
+        if (payload.user) {
+          state.user = { ...state.user, ...payload.user };
+        }
       })
       .addCase(registerUser.rejected, (state, { payload }) => {
         state.isLoading = false;
         state.isError = true;
         state.message = payload;
       })
-
       .addCase(loginUser.pending, (state) => {
         state.isLoading = true;
       })
@@ -93,13 +96,15 @@ const authSlice = createSlice({
         authSlice.caseReducers.setCredentials(state, {
           payload: payload.token,
         });
+        if (payload.user) {
+          state.user = { ...state.user, ...payload.user };
+        }
       })
       .addCase(loginUser.rejected, (state, { payload }) => {
         state.isLoading = false;
         state.isError = true;
         state.message = payload;
       })
-
       .addCase(logoutUser.fulfilled, (state) => {
         state.user = null;
         state.token = null;
@@ -116,7 +121,7 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.isError = true;
         state.message = payload;
-      });
+      })
   },
 });
 

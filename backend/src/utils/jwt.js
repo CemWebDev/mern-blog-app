@@ -7,15 +7,17 @@ const { JWT_SECRET, JWT_EXPIRES_IN } = process.env;
 /**
  * Generate a JSON Web Token for a user.
  *
- * @param {Object} user 
+ * @param {Object} user
  * @param {string} user._id
  * @param {string} user.email
  * @param {string} user.username
  * @returns {string}
  */
 const signToken = (user) => {
+  const id = user._id?.toString() || user.id;
+
   const payload = {
-    id: user._id,
+    id,
     email: user.email,
     username: user.username,
     avatarUrl: user.avatarUrl,

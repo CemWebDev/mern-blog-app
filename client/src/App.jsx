@@ -6,6 +6,7 @@ import ProtectedRoute from './guards/ProtectedRoute';
 import Home from './pages/Home';
 import OAuthSuccess from './pages/OAuthSuccess';
 import DashboardLayout from './layouts/DashboardLayout';
+import Profile from './pages/Profile';
 
 const App = () => {
   return (
@@ -19,6 +20,7 @@ const App = () => {
       <Route element={<ProtectedRoute />}>
         <Route element={<DashboardLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/profile" element={<Profile />} />
         </Route>
       </Route>
     </Routes>

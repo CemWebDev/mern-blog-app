@@ -17,7 +17,13 @@ const register = async ({ username, email, password }) => {
     password: hashedPassword,
   });
   await user.save();
-  const token = signToken({ id: user._id });
+  const token = signToken({
+    id: user._id,
+    email: user.email,
+    avatarUrl: user.avatarUrl,
+    username: user.username,
+    githubId: user.githubId,
+  });
 
   return { user, token };
 };
@@ -37,7 +43,13 @@ const login = async ({ email, password }) => {
     throw error;
   }
 
-  const token = signToken({ id: user._id });
+  const token = signToken({
+    id: user._id,
+    email: user.email,
+    avatarUrl: user.avatarUrl,
+    username: user.username,
+    githubId: user.githubId,
+  });
   return { user, token };
 };
 

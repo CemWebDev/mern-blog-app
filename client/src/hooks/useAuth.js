@@ -5,8 +5,7 @@ import {
   loginUser,
   logoutUser,
   setCredentials,
-  uploadAvatar
-
+  uploadAvatar,
 } from '../features/auth/authSlice';
 import { signWithGithub as GitHub } from '../services/authService';
 
@@ -25,11 +24,18 @@ export const useAuthActions = () => {
   const reset = () => dispatch(resetState());
   const setAvatar = (file, token) => dispatch(uploadAvatar({ file, token }));
 
-
   const signWithGithub = () => {
     GitHub();
   };
 
   const applyCredentials = (token) => dispatch(setCredentials(token));
-  return { register, login, logout, reset, signWithGithub, applyCredentials, setAvatar };
+  return {
+    register,
+    login,
+    logout,
+    reset,
+    signWithGithub,
+    applyCredentials,
+    setAvatar,
+  };
 };

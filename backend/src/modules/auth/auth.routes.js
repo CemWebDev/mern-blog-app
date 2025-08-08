@@ -2,6 +2,8 @@ import express from 'express';
 import { registerCtrl, loginCtrl } from './auth.controller.js';
 import { signToken } from '../../utils/jwt.js';
 import passport from 'passport';
+import User from './auth.model.js';
+import { protect } from "../../middleware/auth.js";
 
 const router = express.Router();
 

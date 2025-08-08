@@ -46,3 +46,8 @@ export const uploadAvatar = async (file) => {
 
   return response.data;
 };
+
+export const getMe = async () => {
+  const { data } = await axiosInstance.get('/auth/me');
+  return data;
+};
