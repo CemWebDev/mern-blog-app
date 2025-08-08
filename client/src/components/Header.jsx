@@ -57,7 +57,7 @@ const Header = () => {
 
             {user && (
               <NavLink
-                to="/posts/new"
+                to="/new-post"
                 className={({ isActive }) =>
                   `relative flex items-center px-4 py-2.5 rounded-xl font-medium transition-all duration-200 ${
                     isActive
@@ -144,7 +144,7 @@ const Header = () => {
 
               {user && (
                 <NavLink
-                  to="/posts/new"
+                  to="/new-post"
                   onClick={closeMobileMenu}
                   className={({ isActive }) =>
                     `flex items-center px-4 py-3 rounded-xl text-base font-medium transition-all duration-200 ${

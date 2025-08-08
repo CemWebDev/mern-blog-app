@@ -7,6 +7,8 @@ import Home from './pages/Home';
 import OAuthSuccess from './pages/OAuthSuccess';
 import DashboardLayout from './layouts/DashboardLayout';
 import Profile from './pages/Profile';
+import NewPost from './pages/NewPost';
+import ViewPost from './pages/ViewPost';
 
 const App = () => {
   return (
@@ -21,6 +23,8 @@ const App = () => {
         <Route element={<DashboardLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/new-post" element={<NewPost />} />
+          <Route path="/posts/:id" element={<ViewPost />} />
         </Route>
       </Route>
     </Routes>

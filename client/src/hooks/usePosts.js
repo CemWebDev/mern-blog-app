@@ -1,0 +1,42 @@
+import { useDispatch, useSelector } from 'react-redux';
+
+import {
+  fetchPost,
+  fetchPosts,
+  createNewPost,
+  updatePost,
+  deletePost,
+} from '../features/posts/postSlice';
+
+export const usePosts = () => {
+  const { posts, post, isLoading, isError, isSuccess, message } = useSelector(
+    (state) => state.posts
+  );
+
+  return {
+    posts,
+    post,
+    isLoading,
+    isError,
+    isSuccess,
+    message,
+  };
+};
+
+export const usePostActions = () => {
+  const dispatch = useDispatch();
+  const getPost = (id) => dispatch(fetchPost(id));
+  const getPosts = () => dispatch(fetchPosts());
+  const createPost = (postData) => dispatch(createNewPost(postData));
+  const updateExistingPost = (id, postData) =>
+    dispatch(updatePost({ id, ...postData }));
+  const deleteExistingPost = (id) => dispatch(deletePost(id));
+
+  return {
+    getPost,
+    getPosts,
+    createPost,
+    updateExistingPost,
+    deleteExistingPost,
+  };
+};
