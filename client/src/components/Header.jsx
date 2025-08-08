@@ -5,7 +5,7 @@ import Avatar from './UI/Avatar/Avatar.jsx';
 import { useState } from 'react';
 import { FileText, PlusCircle, User, LogOut, Menu, X } from 'lucide-react';
 
-export default function Header() {
+const Header = () => {
   const { user } = useAuth();
   const { logout } = useAuthActions();
   const navigate = useNavigate();
@@ -52,7 +52,7 @@ export default function Header() {
               }
             >
               <FileText className="w-4 h-4 mr-2.5" />
-              Posts
+              Yazılar
             </NavLink>
 
             {user && (
@@ -67,7 +67,7 @@ export default function Header() {
                 }
               >
                 <PlusCircle className="w-4 h-4 mr-2.5" />
-                New Post
+                Yayınla
               </NavLink>
             )}
 
@@ -89,24 +89,21 @@ export default function Header() {
                     <Avatar size={42} />
                   </NavLink>
                 </div>
-                <Button
-                  onClick={handleLogout}
-                  className="flex items-center px-4 py-2.5 bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-200"
-                >
+                <Button onClick={handleLogout} size="default" variant="warning">
                   <LogOut className="w-4 h-4 mr-2" />
-                  <span className="hidden xl:inline">Logout</span>
+                  <span className="hidden xl:inline">Çıkış Yap</span>
                 </Button>
               </div>
             ) : (
               <div className="flex items-center space-x-3 ml-6 pl-6 border-l border-gray-200">
                 <NavLink to="/register">
-                  <Button className="px-5 py-2.5 bg-white border-2 border-emerald-500 text-emerald-600 hover:bg-emerald-50 hover:border-emerald-600 rounded-xl font-medium transition-all duration-200">
-                    Sign Up
+                  <Button variant="default" size="tall">
+                    Hesap Oluştur
                   </Button>
                 </NavLink>
                 <NavLink to="/login">
-                  <Button className="px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-200">
-                    Login
+                  <Button variant="default" size="tall">
+                    Giriş Yap
                   </Button>
                 </NavLink>
               </div>
@@ -142,7 +139,7 @@ export default function Header() {
                 }
               >
                 <FileText className="w-4 h-4 mr-3" />
-                Posts
+                Yazılar
               </NavLink>
 
               {user && (
@@ -158,7 +155,7 @@ export default function Header() {
                   }
                 >
                   <PlusCircle className="w-4 h-4 mr-3" />
-                  New Post
+                  Gönderi Yayınla
                 </NavLink>
               )}
 
@@ -189,7 +186,7 @@ export default function Header() {
                         handleLogout();
                         closeMobileMenu();
                       }}
-                      className="w-full flex items-center px-4 py-3 rounded-xl text-base font-medium text-rose-600 hover:text-rose-700 hover:bg-rose-50 transition-all duration-200"
+                      className="w-full flex items-center px-7 py-2 rounded-sm text-base font-medium text-rose-600 hover:text-rose-700 hover:bg-rose-50 transition-all duration-200"
                     >
                       <LogOut className="w-4 h-4 mr-3" />
                       Logout
@@ -204,7 +201,7 @@ export default function Header() {
                     className="block w-full"
                   >
                     <Button className="w-full px-5 py-3 bg-white border-2 border-emerald-500 text-emerald-600 hover:bg-emerald-50 hover:border-emerald-600 rounded-xl font-medium transition-all duration-200">
-                      Sign Up
+                      Hesap Oluştur
                     </Button>
                   </NavLink>
                   <NavLink
@@ -213,7 +210,7 @@ export default function Header() {
                     className="block w-full"
                   >
                     <Button className="w-full px-5 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-200">
-                      Login
+                      Giriş Yap
                     </Button>
                   </NavLink>
                 </div>
@@ -224,4 +221,6 @@ export default function Header() {
       </div>
     </header>
   );
-}
+};
+
+export default Header;

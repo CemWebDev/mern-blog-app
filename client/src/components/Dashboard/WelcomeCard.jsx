@@ -12,7 +12,7 @@ export default function WelcomeCard() {
   };
 
   return (
-    <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl shadow-lg p-8 text-white mb-8">
+    <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-sm shadow-lg p-8 text-white mb-8">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold mb-2">
