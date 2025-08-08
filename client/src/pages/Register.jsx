@@ -6,8 +6,8 @@ import AuthLayout from '../layouts/AuthLayout';
 import AuthFields from '../components/Auth/AuthFields';
 import { useAuthActions } from '../hooks/useAuth';
 
-export default function RegisterPage() {
-  const { form, onChange, onSubmit, isLoading, isError, message } =
+const Register = () => {
+  const { form, onChange, onSubmit, isLoading, isError, message, errors } =
     useAuthForm('register');
 
   const [acceptTerms, setAcceptTerms] = useState(false);
@@ -74,7 +74,10 @@ export default function RegisterPage() {
         onSubmit={onSubmit}
         onChange={onChange}
         formValues={form}
+        errors={errors}
       />
     </AuthLayout>
   );
-}
+};
+
+export default Register;

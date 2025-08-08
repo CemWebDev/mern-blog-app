@@ -4,7 +4,8 @@ import Button from '../components/UI/Button/Button';
 import Input from '../components/UI/Input/Input';
 import { usePosts, usePostActions } from '../hooks/usePosts';
 import Textarea from '../components/UI/Input/TextArea';
-
+import { postSchema } from '../schemas/postSchema';
+import { mapYupErrors } from '../utils/mapYupErrors';
 
 const NewPost = () => {
   const [form, setForm] = useState({ title: '', content: '' });
@@ -12,7 +13,6 @@ const NewPost = () => {
   const navigate = useNavigate();
   const { isLoading, isError, message } = usePosts();
   const { createPost } = usePostActions();
-
 
   const onChange = (e) => {
     const { name, value } = e.target;
@@ -22,33 +22,21 @@ const NewPost = () => {
     }
   };
 
-  const validate = () => {
-    const e = {};
-    if (!form.title.trim()) e.title = 'Başlık zorunlu';
-    if (!form.content.trim()) e.content = 'İçerik zorunlu';
-    if (form.title.trim().length < 3)
-      e.title = 'Başlık en az 3 karakter olmalı';
-    if (form.content.trim().length < 10)
-      e.content = 'İçerik en az 10 karakter olmalı';
-    setErrors(e);
-    return Object.keys(e).length === 0;
-  };
-
   const onSubmit = async (e) => {
     e.preventDefault();
-    if (!validate()) return;
     try {
-      const created =
-        (await createPost({
-          title: form.title.trim(),
-          content: form.content.trim(),
-        }).unwrap?.()) ?? null;
-
-      const id = created?._id || created?.id;
-      if (id) navigate(`/posts/${id}`);
-      else navigate('/posts');
-    } catch (error) {
-      console.error('Yazı oluşturulurken hata:', error);
+      await postSchema.validate(form, { abortEarly: false });
+      setErrors({});
+      const created = await createPost({
+        title: form.title.trim(),
+        content: form.content.trim(),
+      }).unwrap();
+      navigate(`/posts/${created._id || created.id}`);
+    } catch (err) {
+      if (err.name === 'ValidationError') {
+        setErrors(mapYupErrors(err));
+        return;
+      }
     }
   };
 

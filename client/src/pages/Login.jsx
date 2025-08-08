@@ -5,18 +5,11 @@ import AuthLayout from '../layouts/AuthLayout';
 import AuthFields from '../components/Auth/AuthFields';
 import { useAuthActions } from '../hooks/useAuth';
 
-export default function Login() {
-  const {
-    form,
-    onChange,
-    onSubmit,
-    isLoading,
-    isError,
-    message,
-  } = useAuthForm('login');
+const Login = () => {
+  const { form, onChange, onSubmit, errors, isLoading, isError, message } =
+    useAuthForm('login');
 
   const { signWithGithub } = useAuthActions();
-
 
   return (
     <AuthLayout
@@ -50,6 +43,7 @@ export default function Login() {
         onSubmit={onSubmit}
         onChange={onChange}
         formValues={form}
+        errors={errors}
       />
 
       <div className="mt-4 text-center">
@@ -62,4 +56,6 @@ export default function Login() {
       </div>
     </AuthLayout>
   );
-}
+};
+
+export default Login;

@@ -1,9 +1,14 @@
 import mongoose from 'mongoose';
 
+const usernameRegex = /^[a-zA-Z0-9_.-]+$/;
+
 const userSchema = new mongoose.Schema({
   username: {
     type: String,
     required: true,
+    minlength: 3,
+    maxlength: 20,
+    match: usernameRegex,
     unique: true,
     trim: true,
   },
@@ -11,6 +16,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
+    validate: {
+      validator: (v) => /^\S+@\S+\.\S+$/.test(v),
+      message: 'Invalid email format',
+    },
     lowercase: true,
     trim: true,
   },
