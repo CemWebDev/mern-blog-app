@@ -9,27 +9,21 @@ const AuthFields = ({
   onSubmit,
   onChange,
   formValues,
-  errors = {},
 }) => {
   return (
     <form onSubmit={onSubmit} className="space-y-5">
       {fields.map(({ name, label, type, placeholder, Icon, showToggle }) => (
-        <div key={name} className="space-y-1.5">
-          <Input
-            label={label}
-            name={name}
-            type={type}
-            placeholder={placeholder}
-            Icon={Icon}
-            showToggle={showToggle}
-            value={formValues[name] || ''}
-            onChange={onChange}
-            error={errors[name]}
-          />
-          {errors[name] && (
-            <p className="text-sm text-rose-600">{errors[name]}</p>
-          )}
-        </div>
+        <Input
+          key={name}
+          label={label}
+          name={name}
+          type={type}
+          placeholder={placeholder}
+          Icon={Icon}
+          showToggle={showToggle}
+          value={formValues[name] || ''}
+          onChange={onChange}
+        />
       ))}
 
       {acceptTermsConfig && (

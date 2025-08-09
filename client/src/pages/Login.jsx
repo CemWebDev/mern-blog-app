@@ -6,8 +6,16 @@ import AuthFields from '../components/Auth/AuthFields';
 import { useAuthActions } from '../hooks/useAuth';
 
 const Login = () => {
-  const { form, onChange, onSubmit, errors, isLoading, isError, message } =
-    useAuthForm('login');
+  const {
+    form,
+    onChange,
+    onSubmit,
+    errors,
+    isLoading,
+    isError,
+    message,
+    fieldErrors,
+  } = useAuthForm('login');
 
   const { signWithGithub } = useAuthActions();
 
@@ -43,7 +51,7 @@ const Login = () => {
         onSubmit={onSubmit}
         onChange={onChange}
         formValues={form}
-        errors={errors}
+        errors={fieldErrors}
       />
 
       <div className="mt-4 text-center">

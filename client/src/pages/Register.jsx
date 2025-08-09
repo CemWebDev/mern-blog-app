@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { User, AtSign, Lock } from 'lucide-react';
 import { useAuthForm } from '../hooks/useAuthForm';

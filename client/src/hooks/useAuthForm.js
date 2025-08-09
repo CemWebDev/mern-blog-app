@@ -2,6 +2,8 @@ import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth, useAuthActions } from '../hooks/useAuth';
 import { loginSchema, registerSchema } from '../schemas/authSchema';
+import { toastSuccess, toastError } from '../utils/toast';
+import * as yup from 'yup';
 
 export const useAuthForm = (type) => {
   const initialForm =
@@ -10,11 +12,12 @@ export const useAuthForm = (type) => {
       : { username: '', email: '', password: '' };
 
   const [form, setForm] = useState(initialForm);
+  const [fieldErrors, setFieldErrors] = useState({});
   const [errors, setErrors] = useState({});
-
   const { user, isLoading, isError, message } = useAuth();
   const { login, register, reset } = useAuthActions();
   const navigate = useNavigate();
+
   const schema = useMemo(
     () => (type === 'register' ? registerSchema : loginSchema),
     [type]
@@ -23,18 +26,40 @@ export const useAuthForm = (type) => {
   useEffect(() => {
     reset();
   }, [reset]);
+
   useEffect(() => {
-    if (user) navigate('/dashboard');
+    if (isError && message) toastError(message);
+  }, [isError, message]);
+
+  useEffect(() => {
+    if (user) {
+      toastSuccess(`Hoş geldin, ${user.username || 'kullanıcı'}!`);
+      navigate('/dashboard');
+    }
   }, [user, navigate]);
 
-  const onChange = (e) =>
-    setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
+  const onChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+
+    if (fieldErrors[name])
+      setFieldErrors((prev) => ({ ...prev, [name]: undefined }));
+  };
 
   const onSubmit = async (e) => {
     e.preventDefault();
+
+    const order =
+      type === 'login'
+        ? ['email', 'password']
+        : ['username', 'email', 'password'];
+
     try {
-      await schema.validate(form, { abortEarly: false });
-      setErrors({});
+      for (const key of order) {
+        const fieldSchema = yup.reach(schema, key);
+        await fieldSchema.validate(form[key], { abortEarly: true });
+      }
+
       if (type === 'login') {
         login({
           email: form.email.trim().toLowerCase(),
@@ -49,12 +74,22 @@ export const useAuthForm = (type) => {
       }
     } catch (err) {
       if (err.name === 'ValidationError') {
-        const out = {};
-        for (const v of err.inner) if (!out[v.path]) out[v.path] = v.message;
-        setErrors(out);
+        const msg = err.errors?.[0] || err.message || 'Formu kontrol edin.';
+        toastError(msg);
+        return;
       }
+      toastError(err);
     }
   };
 
-  return { form, errors, onChange, onSubmit, isLoading, isError, message };
+  return {
+    form,
+    errors,
+    onChange,
+    onSubmit,
+    isLoading,
+    isError,
+    message,
+    fieldErrors,
+  };
 };

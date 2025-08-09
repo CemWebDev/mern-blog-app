@@ -5,7 +5,8 @@ import Input from '../components/UI/Input/Input';
 import { usePosts, usePostActions } from '../hooks/usePosts';
 import Textarea from '../components/UI/Input/TextArea';
 import { postSchema } from '../schemas/postSchema';
-import { mapYupErrors } from '../utils/mapYupErrors';
+import { toastError, toastPromise } from '../utils/toast';
+
 
 const NewPost = () => {
   const [form, setForm] = useState({ title: '', content: '' });
@@ -22,23 +23,37 @@ const NewPost = () => {
     }
   };
 
-  const onSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await postSchema.validate(form, { abortEarly: false });
-      setErrors({});
-      const created = await createPost({
-        title: form.title.trim(),
-        content: form.content.trim(),
-      }).unwrap();
-      navigate(`/posts/${created._id || created.id}`);
-    } catch (err) {
-      if (err.name === 'ValidationError') {
-        setErrors(mapYupErrors(err));
-        return;
-      }
+const onSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    await postSchema.validate(form, { abortEarly: false });
+    setErrors({});
+    const createPromise = createPost({
+      title: form.title.trim(),
+      content: form.content.trim(),
+    }).unwrap();
+
+    const created = await toastPromise(createPromise, {
+      loading: 'Yazı yayımlanıyor…',
+      success: 'Yazı yayımlandı!',
+      error: (err) =>
+        err?.response?.data?.message || err?.message || 'Yazı oluşturulamadı',
+    });
+
+    const id = created?._id || created?.id;
+    navigate(id ? `/posts/${id}` : '/posts');
+  } catch (err) {
+    if (err?.name === 'ValidationError') {
+      const out = {};
+      for (const v of err.inner) if (!out[v.path]) out[v.path] = v.message;
+      setErrors(out);
+      toastError('Formu kontrol et: eksik/hatalı alanlar var.');
+      return;
     }
-  };
+    toastError(err?.message || 'Bir şeyler ters gitti.');
+  }
+};
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4">
