@@ -12,9 +12,9 @@ const initialState = {
 
 export const fetchPosts = createAsyncThunk(
   'posts/fetchPosts',
-  async (_, thunkAPI) => {
+  async (params, thunkAPI) => {
     try {
-      const posts = await postsService.getPosts();
+      const posts = await postsService.getPosts(params);
       return posts;
     } catch (error) {
       const message = error.response?.data?.message || error.message;

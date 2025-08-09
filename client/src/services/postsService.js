@@ -4,8 +4,8 @@ import axiosInstance from './api';
  * @returns {Promise<Array>}
  */
 
-export const getPosts = async () => {
-  const { data } = await axiosInstance.get('/posts');
+export const getPosts = async (params = {}) => {
+  const { data } = await axiosInstance.get('/posts', { params });
   return data;
 };
 

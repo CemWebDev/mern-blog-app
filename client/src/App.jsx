@@ -9,6 +9,7 @@ import DashboardLayout from './layouts/DashboardLayout';
 import Profile from './pages/Profile';
 import NewPost from './pages/NewPost';
 import ViewPost from './pages/ViewPost';
+import Posts from './pages/Posts';
 
 const App = () => {
   return (
@@ -25,6 +26,7 @@ const App = () => {
           <Route path="/profile" element={<Profile />} />
           <Route path="/new-post" element={<NewPost />} />
           <Route path="/posts/:id" element={<ViewPost />} />
+          <Route path="/posts" element={<Posts />} />
         </Route>
       </Route>
     </Routes>

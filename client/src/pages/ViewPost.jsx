@@ -8,7 +8,7 @@ import {
 } from '../features/posts/postSlice';
 import Button from '../components/UI/Button/Button';
 import { ArrowLeft, Edit, Trash2 } from 'lucide-react';
-import { usePosts, usePostActions } from '../hooks/usePosts';
+import { usePosts } from '../hooks/usePosts';
 
 export default function ViewPost() {
   const { id } = useParams();
@@ -86,7 +86,7 @@ export default function ViewPost() {
   if (!post) return null;
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
+    <>
       <div className="flex items-center justify-between mb-6">
         <Button size="tall" onClick={() => navigate(-1)}>
           <ArrowLeft className="w-4 h-4 mr-2" /> Geri
@@ -118,6 +118,6 @@ export default function ViewPost() {
           {post.content}
         </p>
       </article>
-    </div>
+    </>
   );
 }

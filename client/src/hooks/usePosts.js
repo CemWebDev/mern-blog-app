@@ -26,7 +26,7 @@ export const usePosts = () => {
 export const usePostActions = () => {
   const dispatch = useDispatch();
   const getPost = (id) => dispatch(fetchPost(id));
-  const getPosts = () => dispatch(fetchPosts());
+  const getPosts = (params) => dispatch(fetchPosts(params));
   const createPost = (postData) => dispatch(createNewPost(postData));
   const updateExistingPost = (id, postData) =>
     dispatch(updatePost({ id, ...postData }));

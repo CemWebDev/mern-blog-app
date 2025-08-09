@@ -11,9 +11,7 @@ import { protect } from '../../middleware/auth.js';
 const router = express.Router();
 
 router.use(protect);
-
 router.route('/').get(getPostsCtrl).post(createPostCtrl);
-
 router
   .route('/:id')
   .get(getPostCtrl)
