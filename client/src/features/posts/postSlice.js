@@ -140,6 +140,7 @@ const postsSlice = createSlice({
         state.posts = state.posts.map((p) =>
           p._id === payload._id ? payload : p
         );
+        state.post = payload; 
       })
       .addCase(updatePost.rejected, (state, { payload }) => {
         state.isLoading = false;
