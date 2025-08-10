@@ -50,10 +50,10 @@ export const createNewPost = createAsyncThunk(
 );
 
 export const updatePost = createAsyncThunk(
-  'posts/updateExisitingPost',
-  async ({ id, ...postData }, thunkAPI) => {
+  'posts/updateExistingPost',
+  async ({ id, data }, thunkAPI) => {
     try {
-      const post = await postsService.updatePost(id, postData);
+      const post = await postsService.updatePost(id, data);
       return post;
     } catch (error) {
       const message = error.response?.data?.message || error.message;

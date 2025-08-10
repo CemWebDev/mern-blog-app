@@ -37,9 +37,12 @@ export const createPost = async (postData) => {
  * @returns {Promise<Object>}
  */
 
-export const updatePost = async (postId, postData) => {
-  const { data } = await axiosInstance.put(`/posts/${postId}`, postData);
-  return data;
+export const updatePost = async (postId, data) => {
+  const isForm = typeof FormData !== 'undefined' && data instanceof FormData;
+  const res = await axiosInstance.put(`/posts/${postId}`, data, {
+    headers: isForm ? { 'Content-Type': 'multipart/form-data' } : undefined,
+  });
+  return res.data;
 };
 
 /**

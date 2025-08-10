@@ -23,7 +23,7 @@ export const getPostById = async (id) => {
   return await Post.findById(id).populate('author', 'username');
 };
 
-export const updatePost = async (id, userId, { title, content, cover }) => {
+export const updatePost = async (id, userId, { title, content, cover, removeCover }) => {
   const post = await Post.findOne({ _id: id, author: userId });
   if (!post) {
     const error = new Error('Post not found or not authorized to update');
@@ -33,11 +33,13 @@ export const updatePost = async (id, userId, { title, content, cover }) => {
 
   if (typeof title === 'string') post.title = title;
   if (typeof content === 'string') post.content = content;
+  if (removeCover && post.cover?.publicId) {
+    try { await cloudinary.uploader.destroy(post.cover.publicId); } catch {}
+    post.cover = undefined;
+  }
   if (cover) {
     if (post.cover?.publicId) {
-      try {
-        await cloudinary.uploader.destroy(post.cover.publicId);
-      } catch {}
+      try { await cloudinary.uploader.destroy(post.cover.publicId); } catch {}
     }
     post.cover = cover;
   }

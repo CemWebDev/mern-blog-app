@@ -29,7 +29,7 @@ export const usePostActions = () => {
   const getPosts = (params) => dispatch(fetchPosts(params));
   const createPost = (postData) => dispatch(createNewPost(postData));
   const updateExistingPost = (id, postData) =>
-    dispatch(updatePost({ id, ...postData }));
+    dispatch(updatePost({ id, data: postData }));
   const deleteExistingPost = (id) => dispatch(deletePost(id));
 
   return {

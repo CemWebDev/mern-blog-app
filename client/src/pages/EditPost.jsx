@@ -8,6 +8,7 @@ import Button from '../components/UI/Button/Button';
 import Input from '../components/UI/Input/Input';
 import Textarea from '../components/UI/Input/TextArea';
 import CoverPicker from '../components/Posts/CoverPicker';
+import CoverPlaceholder from '../components/Posts/CoverPlaceholder';
 import { postSchema } from '../schemas/postSchema';
 import { toastError, toastSuccess, toastPromise } from '../utils/toast';
 import { ArrowLeft, Save } from 'lucide-react';
@@ -24,7 +25,7 @@ const EditPost = () => {
   const [form, setForm] = useState({ title: '', content: '' });
   const [errors, setErrors] = useState({});
 
-  const [coverFile, setCoverFile] = useState(null);  
+  const [coverFile, setCoverFile] = useState(null);
   const [removeCover, setRemoveCover] = useState(false);
 
   useEffect(() => {
@@ -132,6 +133,8 @@ const EditPost = () => {
     !form.title.trim() ||
     !form.content.trim() ||
     (!changedText && !changedCover);
+  const showPlaceholder =
+    !coverFile && (removeCover || !post.cover?.url);
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
@@ -158,6 +161,14 @@ const EditPost = () => {
       </div>
 
       <h1 className="text-3xl font-bold text-gray-900 mb-6">Yazıyı Düzenle</h1>
+      <div className="mb-4">
+        {showPlaceholder ? (
+          <CoverPlaceholder
+            title={form.title || post.title || 'Post'}
+            className="h-48 rounded-xl"
+          />
+        ) : null}
+      </div>
 
       <form id="editForm" onSubmit={onSubmit} className="space-y-6">
         <Input
@@ -171,6 +182,7 @@ const EditPost = () => {
         {errors.title && (
           <p className="mt-1 text-sm text-rose-600">{errors.title}</p>
         )}
+
         <CoverPicker
           value={coverFile}
           onChange={(file) => {
