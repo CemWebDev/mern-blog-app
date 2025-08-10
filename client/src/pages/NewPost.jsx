@@ -6,9 +6,12 @@ import { usePosts, usePostActions } from '../hooks/usePosts';
 import Textarea from '../components/UI/Input/TextArea';
 import { postSchema } from '../schemas/postSchema';
 import { toastError, toastPromise } from '../utils/toast';
+import CoverPicker from '../components/Posts/CoverPicker';
+import { Rocket, X as XIcon } from 'lucide-react';
 
 const NewPost = () => {
   const [form, setForm] = useState({ title: '', content: '' });
+  const [cover, setCover] = useState(null);
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
   const { isLoading, isError, message } = usePosts();
@@ -17,21 +20,27 @@ const NewPost = () => {
   const onChange = (e) => {
     const { name, value } = e.target;
     setForm((p) => ({ ...p, [name]: value }));
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: '' }));
-    }
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
   };
 
   const onSubmit = async (e) => {
     e.preventDefault();
 
     try {
+      if (cover && cover.size > 5 * 1024 * 1024) {
+        toastError('Kapak görseli en fazla 5MB olmalı.');
+        return;
+      }
+
       await postSchema.validate(form, { abortEarly: false });
       setErrors({});
-      const createPromise = createPost({
-        title: form.title.trim(),
-        content: form.content.trim(),
-      }).unwrap();
+
+      const fd = new FormData();
+      fd.append('title', form.title.trim());
+      fd.append('content', form.content.trim());
+      if (cover) fd.append('cover', cover);
+
+      const createPromise = createPost(fd).unwrap();
 
       const created = await toastPromise(createPromise, {
         loading: 'Yazı yayımlanıyor…',
@@ -64,6 +73,7 @@ const NewPost = () => {
           Fikirlerinizi paylaşın ve topluluğa katkıda bulunun
         </p>
       </div>
+
       <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
         {isError && (
           <div className="mb-6 rounded-xl border border-rose-200 bg-rose-50 p-4">
@@ -105,23 +115,10 @@ const NewPost = () => {
             className="mb-0"
           />
           {errors.title && (
-            <p className="mt-1 text-sm text-rose-600 flex items-center">
-              <svg
-                className="w-4 h-4 mr-1"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              {errors.title}
-            </p>
+            <p className="mt-1 text-sm text-rose-600">{errors.title}</p>
           )}
+
+          <CoverPicker value={cover} onChange={setCover} />
 
           <Textarea
             label="İçerik"
@@ -133,6 +130,7 @@ const NewPost = () => {
             error={errors.content}
             className="mb-0"
           />
+
           <div className="text-sm text-gray-500">
             <span
               className={
@@ -150,64 +148,32 @@ const NewPost = () => {
               İçerik: {form.content.length} karakter
             </span>
           </div>
-          <div className="flex items-center space-x-3 pt-6 border-t border-gray-100">
+
+          <div className="flex items-center gap-3 pt-6 border-t border-gray-100">
             <Button
               type="submit"
-              variant="default"
+              variant="primary"
               size="tall"
-              disabled={isLoading || !form.title.trim() || !form.content.trim()}
+              isLoading={isLoading}
+              disabled={!form.title.trim() || !form.content.trim()}
+              leftIcon={!isLoading && <Rocket className="w-4 h-4" />}
             >
-              {isLoading ? (
-                <div className="flex items-center">
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                  Yayımlanıyor...
-                </div>
-              ) : (
-                <div className="flex items-center">
-                  <svg
-                    className="w-4 h-4 mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-                    />
-                  </svg>
-                  Yayımla
-                </div>
-              )}
+              Yayımla
             </Button>
 
             <Button
               type="button"
-              variant="default"
+              variant="ghost"
               size="tall"
               onClick={() => navigate('/dashboard')}
+              leftIcon={<XIcon className="w-4 h-4" />}
             >
-              <div className="flex items-center">
-                <svg
-                  className="w-4 h-4 mr-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-                İptal
-              </div>
+              İptal
             </Button>
           </div>
         </form>
       </div>
+
       <div className="mt-8 bg-blue-50 border border-blue-200 rounded-2xl p-6">
         <div className="flex items-start">
           <svg

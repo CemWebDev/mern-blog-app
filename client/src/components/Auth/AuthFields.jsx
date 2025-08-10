@@ -41,7 +41,13 @@ const AuthFields = ({
         </div>
       )}
 
-      <Button type="submit" disabled={isLoading} className="w-full" size="tall">
+      <Button
+        type="submit"
+        variant="primary"
+        size="tall"
+        isLoading={isLoading}
+        fullWidth
+      >
         {submitLabel}
       </Button>
     </form>

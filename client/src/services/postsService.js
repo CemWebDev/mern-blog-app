@@ -20,15 +20,17 @@ export const getPost = async (postId) => {
 };
 
 /**
- * @param {{ title: string, content: string }} postData
+ * @param {FormData|object} postData
  * @returns {Promise<Object>}
  */
-
 export const createPost = async (postData) => {
-  const { data } = await axiosInstance.post('/posts', postData);
+  const isForm =
+    typeof FormData !== 'undefined' && postData instanceof FormData;
+  const { data } = await axiosInstance.post('/posts', postData, {
+    headers: isForm ? { 'Content-Type': 'multipart/form-data' } : undefined,
+  });
   return data;
 };
-
 /**
  * @param {string} id
  * @param {{ title?: string, content?: string }} postData

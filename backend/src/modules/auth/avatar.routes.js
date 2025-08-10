@@ -1,11 +1,11 @@
 import express from 'express';
 import multer from 'multer';
 import { protect } from '../../middleware/auth.js';
-import { storage } from '../../utils/cloudinary.js';
+import { avatarStorage } from '../../utils/cloudinary.js';
 import User from './auth.model.js';
 
 const router = express.Router();
-const upload = multer({ storage });
+const upload = multer({ storage: avatarStorage });
 
 router.post('/me', protect, upload.single('avatar'), async (req, res, next) => {
   try {

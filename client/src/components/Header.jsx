@@ -1,26 +1,32 @@
+import { useEffect, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { useAuth, useAuthActions } from '../hooks/useAuth.js';
-import Button from './UI/Button/Button.jsx';
+import { useDispatch, useSelector } from 'react-redux';
 import Avatar from './UI/Avatar/Avatar.jsx';
-import { useState } from 'react';
-import { FileText, PlusCircle, User, LogOut, Menu, X } from 'lucide-react';
+import Button from './UI/Button/Button.jsx';
+import { FileText, PlusCircle, LogOut, Menu, X } from 'lucide-react';
+import { fetchMe } from '../features/users/userSlice.js';
+import { useAuth, useAuthActions } from '../hooks/useAuth.js';
 
 const Header = () => {
-  const { user } = useAuth();
-  const { logout } = useAuthActions();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { user: authUser } = useAuth();
+  const { logout } = useAuthActions();
+
+  const { profile, isLoading: isUsersLoading } = useSelector((s) => s.users);
+  const currentUser = profile || authUser;
+
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    if (authUser && !profile && !isUsersLoading) {
+      dispatch(fetchMe());
+    }
+  }, [authUser, profile, isUsersLoading, dispatch]);
 
   const handleLogout = () => {
     logout();
     navigate('/login');
-  };
-
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
-
-  const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
   };
 
@@ -55,7 +61,7 @@ const Header = () => {
               Yazılar
             </NavLink>
 
-            {user && (
+            {currentUser && (
               <NavLink
                 to="/new-post"
                 className={({ isActive }) =>
@@ -71,38 +77,44 @@ const Header = () => {
               </NavLink>
             )}
 
-            {user ? (
+            {currentUser ? (
               <div className="flex items-center space-x-4 ml-6 pl-6 border-l border-gray-200">
                 <div className="flex items-center space-x-3">
                   <div className="text-right hidden xl:block">
                     <p className="text-sm font-semibold text-gray-900 leading-tight">
-                      {user.name || user.username}
+                      {currentUser.name || currentUser.username}
                     </p>
                     <p className="text-xs text-gray-500 leading-tight">
-                      @{user.username}
+                      @{currentUser.username}
                     </p>
                   </div>
                   <NavLink
                     to="/profile"
                     className="block rounded-full ring-2 ring-transparent hover:ring-emerald-200 transition-all duration-200"
                   >
-                    <Avatar size={42} />
+                    <Avatar size={42} src={currentUser.avatarUrl} />
                   </NavLink>
                 </div>
-                <Button onClick={handleLogout} size="default" variant="warning">
-                  <LogOut className="w-4 h-4 mr-2" />
+
+                <Button
+                  variant="danger"
+                  size="tall"
+                  leftIcon={<LogOut className="w-4 h-4" />}
+                  onClick={handleLogout}
+                >
                   <span className="hidden xl:inline">Çıkış Yap</span>
+                  <span className="xl:hidden">Çıkış</span>
                 </Button>
               </div>
             ) : (
               <div className="flex items-center space-x-3 ml-6 pl-6 border-l border-gray-200">
                 <NavLink to="/register">
-                  <Button variant="default" size="tall">
+                  <Button variant="primary" size="tall">
                     Hesap Oluştur
                   </Button>
                 </NavLink>
                 <NavLink to="/login">
-                  <Button variant="default" size="tall">
+                  <Button variant="primary" size="tall">
                     Giriş Yap
                   </Button>
                 </NavLink>
@@ -112,7 +124,7 @@ const Header = () => {
 
           <div className="lg:hidden">
             <button
-              onClick={toggleMobileMenu}
+              onClick={() => setIsMobileMenuOpen((s) => !s)}
               className="inline-flex items-center justify-center p-2.5 rounded-xl text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200"
             >
               {isMobileMenuOpen ? (
@@ -129,7 +141,7 @@ const Header = () => {
             <div className="px-2 pt-4 pb-6 space-y-2">
               <NavLink
                 to="/posts"
-                onClick={closeMobileMenu}
+                onClick={() => setIsMobileMenuOpen(false)}
                 className={({ isActive }) =>
                   `flex items-center px-4 py-3 rounded-xl text-base font-medium transition-all duration-200 ${
                     isActive
@@ -142,10 +154,10 @@ const Header = () => {
                 Yazılar
               </NavLink>
 
-              {user && (
+              {currentUser && (
                 <NavLink
                   to="/new-post"
-                  onClick={closeMobileMenu}
+                  onClick={() => setIsMobileMenuOpen(false)}
                   className={({ isActive }) =>
                     `flex items-center px-4 py-3 rounded-xl text-base font-medium transition-all duration-200 ${
                       isActive
@@ -155,61 +167,59 @@ const Header = () => {
                   }
                 >
                   <PlusCircle className="w-4 h-4 mr-3" />
-                  Gönderi Yayınla
+                  Yayınla
                 </NavLink>
               )}
 
-              {user ? (
-                <div className="border-t border-gray-100 pt-4 mt-4">
+              {currentUser ? (
+                <div className="border-t border-gray-100 pt-4 mt-4 space-y-3">
                   <div className="flex items-center px-4 py-3 rounded-xl bg-gray-50">
-                    <Avatar size={44} />
+                    <Avatar size={44} src={currentUser.avatarUrl} />
                     <div className="ml-3">
                       <p className="text-base font-semibold text-gray-900 leading-tight">
-                        {user.name || user.username}
+                        {currentUser.name || currentUser.username}
                       </p>
                       <p className="text-sm text-gray-500 leading-tight">
-                        @{user.username}
+                        @{currentUser.username}
                       </p>
                     </div>
                   </div>
-                  <div className="mt-3 space-y-2">
-                    <NavLink
-                      to="/profile"
-                      onClick={closeMobileMenu}
-                      className="flex items-center px-4 py-3 rounded-xl text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-all duration-200"
-                    >
-                      <User className="w-4 h-4 mr-3" />
-                      Profile
-                    </NavLink>
-                    <button
-                      onClick={() => {
-                        handleLogout();
-                        closeMobileMenu();
-                      }}
-                      className="w-full flex items-center px-7 py-2 rounded-sm text-base font-medium text-rose-600 hover:text-rose-700 hover:bg-rose-50 transition-all duration-200"
-                    >
-                      <LogOut className="w-4 h-4 mr-3" />
-                      Logout
-                    </button>
-                  </div>
+
+                  <NavLink
+                    to="/profile"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center px-4 py-3 rounded-xl text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-all duration-200"
+                  >
+                    Profil
+                  </NavLink>
+
+                  <Button
+                    variant="danger"
+                    size="tall"
+                    leftIcon={<LogOut className="w-4 h-4" />}
+                    onClick={handleLogout}
+                    className="w-full"
+                  >
+                    Çıkış Yap
+                  </Button>
                 </div>
               ) : (
                 <div className="border-t border-gray-100 pt-4 mt-4 space-y-3">
                   <NavLink
                     to="/register"
-                    onClick={closeMobileMenu}
+                    onClick={() => setIsMobileMenuOpen(false)}
                     className="block w-full"
                   >
-                    <Button className="w-full px-5 py-3 bg-white border-2 border-emerald-500 text-emerald-600 hover:bg-emerald-50 hover:border-emerald-600 rounded-xl font-medium transition-all duration-200">
+                    <Button variant="primary" size="tall" className="w-full">
                       Hesap Oluştur
                     </Button>
                   </NavLink>
                   <NavLink
                     to="/login"
-                    onClick={closeMobileMenu}
+                    onClick={() => setIsMobileMenuOpen(false)}
                     className="block w-full"
                   >
-                    <Button className="w-full px-5 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-200">
+                    <Button variant="primary" size="tall" className="w-full">
                       Giriş Yap
                     </Button>
                   </NavLink>

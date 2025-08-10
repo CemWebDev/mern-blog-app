@@ -1,41 +1,75 @@
-const Button = ({
+const sizeMap = {
+  sm: 'h-9 px-3 text-sm',
+  md: 'h-10 px-4',
+  lg: 'h-11 px-5',
+  tall: 'h-12 px-6 text-base',
+};
+
+const variantMap = {
+  primary:
+    'bg-emerald-600 text-white hover:bg-emerald-700 active:bg-emerald-800 shadow-sm hover:shadow',
+  outline:
+    'text-emerald-700 border border-emerald-600 hover:bg-emerald-50 active:bg-emerald-100',
+  soft: 'text-emerald-700 bg-emerald-50 border border-emerald-100 hover:bg-emerald-100',
+  ghost: 'text-emerald-700 hover:bg-emerald-50 active:bg-emerald-100',
+  danger:
+    'bg-rose-600 text-white hover:bg-rose-700 active:bg-rose-800 shadow-sm hover:shadow',
+  gradient:
+    'text-white bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 shadow-sm hover:shadow',
+  link: 'text-emerald-700 underline-offset-4 hover:underline px-0 h-auto',
+};
+
+export default function Button({
   children,
-  onClick,
   type = 'button',
+  onClick,
   disabled = false,
   className = '',
   size = 'md',
-  variant = 'default',
-}) => {
-  const sizeMap = {
-    default: 'px-7 py-2',
-    tall: 'py-3 px-4',
-  };
+  variant = 'primary',
+  isLoading = false,
+  fullWidth = false,
+  leftIcon,
+  rightIcon,
+  ...rest
+}) {
+  const resolvedVariant = variant === 'warning' ? 'danger' : variant;
 
   const base =
-    'flex items-center justify-center cursor-pointer text-white font-medium rounded-sm transition-all duration-200 hover:shadow-lg';
-  const activeBg =
-    'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 hover:shadow-lg';
-  const warningBg =
-    'bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700';
-  const disabledBg = 'bg-gray-400 !cursor-not-allowed';
+    'inline-flex items-center cursor-pointer justify-center gap-2 rounded-sm font-medium transition-colors ' +
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/60 focus-visible:ring-offset-2 ' +
+    'disabled:opacity-60 disabled:cursor-not-allowed';
 
-  const bgClass = disabled
-    ? disabledBg
-    : variant === 'warning'
-    ? warningBg
-    : activeBg;
-
-  const classes = [base, bgClass, className, sizeMap[size]]
+  const classes = [
+    base,
+    sizeMap[size] ?? sizeMap.md,
+    variantMap[resolvedVariant] ?? variantMap.primary,
+    fullWidth ? 'w-full' : '',
+    className,
+  ]
     .filter(Boolean)
     .join(' ');
 
-  const clickProps = onClick ? { onClick } : {};
+  const Spinner = () => (
+    <span
+      aria-hidden="true"
+      className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-r-transparent"
+    />
+  );
+
   return (
-    <button type={type} {...clickProps} className={classes} disabled={disabled}>
-      {children}
+    <button
+      type={type}
+      onClick={onClick}
+      className={classes}
+      disabled={disabled || isLoading}
+      aria-busy={isLoading ? 'true' : undefined}
+      {...rest}
+    >
+      {isLoading && <Spinner />}
+      {leftIcon && <span className="inline-flex">{leftIcon}</span>}
+      <span>{children}</span>
+      {rightIcon && <span className="inline-flex">{rightIcon}</span>}
     </button>
   );
-};
-
-export default Button;
+}

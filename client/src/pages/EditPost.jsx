@@ -7,6 +7,7 @@ import { resetPostsState } from '../features/posts/postSlice';
 import Button from '../components/UI/Button/Button';
 import Input from '../components/UI/Input/Input';
 import Textarea from '../components/UI/Input/TextArea';
+import CoverPicker from '../components/Posts/CoverPicker';
 import { postSchema } from '../schemas/postSchema';
 import { toastError, toastSuccess, toastPromise } from '../utils/toast';
 import { ArrowLeft, Save } from 'lucide-react';
@@ -23,9 +24,13 @@ const EditPost = () => {
   const [form, setForm] = useState({ title: '', content: '' });
   const [errors, setErrors] = useState({});
 
+  const [coverFile, setCoverFile] = useState(null);  
+  const [removeCover, setRemoveCover] = useState(false);
+
   useEffect(() => {
     if (id) getPost(id);
     return () => dispatch(resetPostsState());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, id]);
 
   const canEdit = useMemo(() => {
@@ -34,7 +39,6 @@ const EditPost = () => {
       typeof post.author === 'string'
         ? post.author
         : post.author?._id || post.author?.id;
-
     return authorId && authorId === user.id;
   }, [user, post]);
 
@@ -44,6 +48,8 @@ const EditPost = () => {
         title: post.title || '',
         content: post.content || '',
       });
+      setCoverFile(null);
+      setRemoveCover(false);
     }
   }, [post]);
 
@@ -67,10 +73,21 @@ const EditPost = () => {
   const onSubmit = async (e) => {
     e.preventDefault();
     try {
+      if (coverFile && coverFile.size > 5 * 1024 * 1024) {
+        toastError('Kapak görseli en fazla 5MB olmalı.');
+        return;
+      }
+
       await postSchema.validate(form, { abortEarly: false });
       setErrors({});
 
-      const promise = updateExistingPost(id, form);
+      const fd = new FormData();
+      fd.append('title', form.title.trim());
+      fd.append('content', form.content.trim());
+      if (coverFile) fd.append('cover', coverFile);
+      if (removeCover) fd.append('removeCover', '1');
+
+      const promise = updateExistingPost(id, fd);
 
       await toastPromise(promise, {
         loading: 'Güncelleniyor…',
@@ -106,27 +123,43 @@ const EditPost = () => {
 
   if (!post) return null;
 
+  const changedText =
+    form.title !== (post.title || '') || form.content !== (post.content || '');
+  const changedCover = !!coverFile || removeCover;
+
   const isDisabled =
     isLoading ||
     !form.title.trim() ||
     !form.content.trim() ||
-    (form.title === post.title && form.content === post.content);
+    (!changedText && !changedCover);
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-6">
-        <Button size="tall" onClick={() => navigate(-1)}>
-          <ArrowLeft className="w-4 h-4 mr-2" /> Geri
+        <Button
+          size="tall"
+          variant="soft"
+          onClick={() => navigate(-1)}
+          leftIcon={<ArrowLeft className="w-4 h-4" />}
+        >
+          Geri
         </Button>
-        <Button size="tall" onClick={onSubmit} disabled={isDisabled}>
-          <Save className="w-4 h-4 mr-2" />
+        <Button
+          size="tall"
+          variant="primary"
+          type="submit"
+          form="editForm"
+          isLoading={isLoading}
+          disabled={isDisabled}
+          leftIcon={!isLoading && <Save className="w-4 h-4" />}
+        >
           Kaydet
         </Button>
       </div>
 
       <h1 className="text-3xl font-bold text-gray-900 mb-6">Yazıyı Düzenle</h1>
 
-      <form onSubmit={onSubmit} className="space-y-6">
+      <form id="editForm" onSubmit={onSubmit} className="space-y-6">
         <Input
           label="Başlık"
           name="title"
@@ -138,6 +171,18 @@ const EditPost = () => {
         {errors.title && (
           <p className="mt-1 text-sm text-rose-600">{errors.title}</p>
         )}
+        <CoverPicker
+          value={coverFile}
+          onChange={(file) => {
+            setCoverFile(file);
+            setRemoveCover(false);
+          }}
+          initialUrl={post.cover?.url || null}
+          onClear={() => {
+            setCoverFile(null);
+            if (post.cover?.url) setRemoveCover(true);
+          }}
+        />
 
         <Textarea
           label="İçerik"
@@ -156,7 +201,14 @@ const EditPost = () => {
         </div>
 
         <div className="pt-6 border-t border-gray-100">
-          <Button type="submit" size="tall" disabled={isDisabled}>
+          <Button
+            type="submit"
+            size="tall"
+            variant="primary"
+            isLoading={isLoading}
+            disabled={isDisabled}
+            leftIcon={!isLoading && <Save className="w-4 h-4" />}
+          >
             Kaydet
           </Button>
         </div>

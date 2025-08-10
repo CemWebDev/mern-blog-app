@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
@@ -7,16 +7,25 @@ import {
   resetPostsState,
 } from '../features/posts/postSlice';
 import Button from '../components/UI/Button/Button';
-import { ArrowLeft, Edit, Trash2 } from 'lucide-react';
+import ConfirmModal from '../components/UI/Modal/Modal';
+import {
+  ArrowLeft,
+  Edit,
+  Trash2,
+  User,
+  Calendar,
+  AlertCircle,
+} from 'lucide-react';
 import { usePosts } from '../hooks/usePosts';
+import { relative } from '../utils/time';
 
 export default function ViewPost() {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
   const { post, isLoading, isError, message } = usePosts();
   const authUser = useSelector((s) => s.auth.user);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
     if (id) dispatch(fetchPost(id));
@@ -38,28 +47,49 @@ export default function ViewPost() {
     return post.author?.username || post.author?.email || 'Yazar';
   }, [post]);
 
-  const createdAt = post?.createdAt
-    ? new Date(post.createdAt).toLocaleString()
-    : '';
+  const createdAt = relative(post?.createdAt);
 
-  const handleDelete = async () => {
+  const handleDeleteClick = () => setShowDeleteModal(true);
+
+  const handleDeleteConfirm = async () => {
     if (!post?._id) return;
-    if (!window.confirm('Bu yazıyı silmek istediğine emin misin?')) return;
     try {
       await dispatch(deletePost(post._id)).unwrap();
       navigate('/posts');
     } catch (e) {
       console.error(e);
+    } finally {
+      setShowDeleteModal(false);
     }
   };
 
   if (isLoading || (!post && !isError)) {
     return (
-      <div className="max-w-3xl mx-auto px-4 py-8">
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 rounded w-3/4" />
-          <div className="h-4 bg-gray-200 rounded w-1/2" />
-          <div className="h-52 bg-gray-200 rounded" />
+      <div className="animate-pulse space-y-8">
+        <div className="flex items-center justify-between">
+          <div className="h-10 bg-gray-200 rounded-lg w-20" />
+          <div className="flex gap-3">
+            <div className="h-10 bg-gray-200 rounded-lg w-24" />
+            <div className="h-10 bg-gray-200 rounded-lg w-16" />
+          </div>
+        </div>
+
+        <div className="h-80 bg-gray-200 rounded-xl" />
+
+        <div className="space-y-4">
+          <div className="h-12 bg-gray-200 rounded-lg w-3/4" />
+          <div className="flex gap-4">
+            <div className="h-8 bg-gray-200 rounded-full w-32" />
+            <div className="h-8 bg-gray-200 rounded-full w-40" />
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl border border-gray-100 p-8 space-y-3">
+          <div className="h-4 bg-gray-200 rounded w-full" />
+          <div className="h-4 bg-gray-200 rounded w-5/6" />
+          <div className="h-4 bg-gray-200 rounded w-4/6" />
+          <div className="h-4 bg-gray-200 rounded w-full" />
+          <div className="h-4 bg-gray-200 rounded w-3/4" />
         </div>
       </div>
     );
@@ -67,19 +97,34 @@ export default function ViewPost() {
 
   if (isError) {
     return (
-      <div className="max-w-3xl mx-auto px-4 py-8">
-        <div className="mb-4">
+      <>
+        <div className="mb-6">
           <Button
-            className="bg-gray-500 hover:bg-gray-600"
+            size="tall"
+            variant="soft"
             onClick={() => navigate(-1)}
+            leftIcon={<ArrowLeft className="w-4 h-4 shrink-0" />}
           >
-            <ArrowLeft className="w-4 h-4 mr-2" /> Geri
+            Geri
           </Button>
         </div>
-        <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-rose-700">
-          {message || 'Yazı bulunamadı.'}
+
+        <div className="bg-white rounded-xl border border-red-200 p-8 text-center shadow-sm">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <AlertCircle className="w-8 h-8 text-red-500" />
+          </div>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">
+            Yazı Bulunamadı
+          </h3>
+          <p className="text-gray-600 mb-6">
+            {message ||
+              'Aradığınız yazı bulunamadı veya erişim izniniz bulunmuyor.'}
+          </p>
+          <Button variant="primary" onClick={() => navigate('/posts')}>
+            Yazılara Geri Dön
+          </Button>
         </div>
-      </div>
+      </>
     );
   }
 
@@ -87,37 +132,89 @@ export default function ViewPost() {
 
   return (
     <>
-      <div className="flex items-center justify-between mb-6">
-        <Button size="tall" onClick={() => navigate(-1)}>
-          <ArrowLeft className="w-4 h-4 mr-2" /> Geri
+      <div className="flex items-center justify-between mb-10">
+        <Button
+          size="tall"
+          variant="soft"
+          onClick={() => navigate(-1)}
+          leftIcon={<ArrowLeft className="w-4 h-4 shrink-0" />}
+        >
+          Geri
         </Button>
 
         {canEdit && (
-          <div className="flex gap-2">
+          <div className="flex gap-3">
             <Button
               size="tall"
+              variant="primary"
               onClick={() => navigate(`/posts/${post._id}/edit`)}
+              leftIcon={<Edit className="w-4 h-4 shrink-0" />}
             >
-              <Edit className="w-4 h-4 mr-2" /> Düzenle
+              Düzenle
             </Button>
-            <Button variant="warning" size="tall" onClick={handleDelete}>
-              <Trash2 className="w-4 h-4 mr-2" /> Sil
+            <Button
+              size="tall"
+              variant="danger"
+              onClick={handleDeleteClick}
+              leftIcon={<Trash2 className="w-4 h-4 shrink-0" />}
+            >
+              Sil
             </Button>
           </div>
         )}
       </div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-2">{post.title}</h1>
-      <div className="text-sm text-gray-500 mb-6">
-        <span className="mr-2">
-          Yazar: <b className="text-gray-700">{authorName}</b>
-        </span>
-        {createdAt && <span>• {createdAt}</span>}
-      </div>
-      <article className="prose max-w-none">
-        <p className="whitespace-pre-line leading-7 text-gray-800">
-          {post.content}
-        </p>
+
+      {post.cover?.url && (
+        <div className="mb-10 rounded-xl overflow-hidden shadow-lg">
+          <img
+            src={post.cover.url || '/placeholder.svg'}
+            alt=""
+            className="w-full h-64 sm:h-80 object-cover"
+          />
+        </div>
+      )}
+
+      <header className="mb-10">
+        <h1 className="text-4xl font-bold text-gray-900 mb-6 leading-tight">
+          {post.title}
+        </h1>
+
+        <div className="flex flex-wrap items-center gap-4 text-sm">
+          <div className="flex items-center bg-white px-4 py-2 rounded-full shadow-sm border border-gray-100">
+            <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center mr-3">
+              <User className="w-4 h-4 text-emerald-600" />
+            </div>
+            <span className="text-gray-600">
+              <span className="font-medium text-gray-900">{authorName}</span>
+            </span>
+          </div>
+
+          {createdAt && (
+            <div className="flex items-center bg-white px-4 py-2 rounded-full shadow-sm border border-gray-100">
+              <Calendar className="w-4 h-4 text-gray-400 mr-2" />
+              <span className="text-gray-600">{createdAt}</span>
+            </div>
+          )}
+        </div>
+      </header>
+
+      <article className="prose prose-lg max-w-none">
+        <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-sm">
+          <div className="whitespace-pre-line leading-8 text-gray-800 text-lg">
+            {post.content}
+          </div>
+        </div>
       </article>
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleDeleteConfirm}
+        title="Yazıyı Sil"
+        message="Bu yazıyı silmek istediğinize emin misiniz? Bu işlem geri alınamaz ve tüm veriler kaybolacaktır."
+        confirmText="Sil"
+        cancelText="İptal"
+        variant="danger"
+      />
     </>
   );
 }
