@@ -52,7 +52,7 @@ const Posts = () => {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Gönderileriniz</h1>
           <p className="text-gray-600">
-            {isLoading ? 'Yükleniyor…' : `${posts?.length ?? 0} post`}
+            {isLoading ? 'Yükleniyor…' : `Toplam ${posts?.length ?? 0} gönderi`}
           </p>
         </div>
       </div>

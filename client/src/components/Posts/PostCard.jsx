@@ -49,7 +49,7 @@ export default function PostCard({ post }) {
             to={`/posts/${post._id}`}
             className="text-emerald-600 hover:text-emerald-700 font-medium"
           >
-            Read →
+            Şimdi Oku →
           </Link>
         </div>
       </div>

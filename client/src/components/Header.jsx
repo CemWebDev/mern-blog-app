@@ -26,9 +26,12 @@ const Header = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
     setIsMobileMenuOpen(false);
   };
+
+  const handleNavigate = () => {
+    authUser ? navigate("/dashboard") : navigate("/");
+  }
 
   return (
     <header className="bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-100 sticky top-0 z-50">
@@ -36,7 +39,7 @@ const Header = () => {
         <div className="flex items-center justify-between h-20">
           <div
             className="flex items-center cursor-pointer group"
-            onClick={() => navigate('/')}
+            onClick={handleNavigate}
           >
             <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 via-green-500 to-teal-600 rounded-xl flex items-center justify-center mr-3 shadow-lg">
               <FileText className="w-6 h-6 text-white" />

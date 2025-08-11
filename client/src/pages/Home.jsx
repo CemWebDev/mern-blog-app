@@ -1,11 +1,21 @@
+import Footer from '../components/Footer';
 import Header from '../components/Header';
+import Cta from '../components/Home/CTA';
+import Features from '../components/Home/Features';
+import Hero from '../components/Home/Hero';
+import LatestPosts from '../components/Home/LatestPosts';
 
-const Home = () => {
+export default function Home() {
   return (
-    <div>
-      <Header />
-    </div>
+    <>
+      <div className="min-h-screen bg-gradient-to-b from-white to-emerald-50/30">
+        <Header />
+        <Hero />
+        <LatestPosts />
+        <Features />
+        <Cta />
+      </div>
+      <Footer />
+    </>
   );
-};
-
-export default Home;
+}
