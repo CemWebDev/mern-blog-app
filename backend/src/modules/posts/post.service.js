@@ -30,6 +30,30 @@ export const getPostById = async (id) => {
   return await Post.findById(id).populate('author', 'username').lean();
 };
 
+export const getPaginatedPosts = async ({ limit = 12, cursor, authorId }) => {
+  const query = {};
+  if (authorId) query.author = authorId;
+  if (cursor) query.createdAt = { $lt: new Date(cursor) };
+
+  const items = await Post.find(
+    query,
+    'title content author cover createdAt updatedAt'
+  )
+    .sort({ createdAt: -1 })
+    .limit(limit + 1)
+    .populate('author', 'username')
+    .lean();
+
+  const hasMore = items.length > limit;
+  if (hasMore) items.pop();
+
+  const nextCursor = hasMore
+    ? items[items.length - 1].createdAt.toISOString()
+    : null;
+
+  return { items, nextCursor, hasMore };
+};
+
 export const updatePost = async (
   id,
   userId,

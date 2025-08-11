@@ -6,6 +6,9 @@ import axiosInstance from './api';
 
 export const getPosts = async (params = {}) => {
   const { data } = await axiosInstance.get('/posts', { params });
+  if (Array.isArray(data)) {
+    return { items: data, nextCursor: null, hasMore: false };
+  }
   return data;
 };
 

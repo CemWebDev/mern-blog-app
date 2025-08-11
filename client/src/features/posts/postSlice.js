@@ -3,8 +3,10 @@ import * as postsService from '../../services/postsService';
 
 const initialState = {
   posts: [],
-  post: null,
+  nextCursor: null,
+  hasMore: false,
   isLoading: false,
+  isLoadingMore: false,
   isError: false,
   isSuccess: false,
   message: '',
@@ -15,7 +17,7 @@ export const fetchPosts = createAsyncThunk(
   async (params, thunkAPI) => {
     try {
       const posts = await postsService.getPosts(params);
-      return posts;
+      return { ...posts, append: Boolean(params?.cursor) };
     } catch (error) {
       const message = error.response?.data?.message || error.message;
       return thunkAPI.rejectWithValue(message);
@@ -89,16 +91,33 @@ const postsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchPosts.pending, (state) => {
-        state.isLoading = true;
+      .addCase(fetchPosts.pending, (state, action) => {
+        const append = Boolean(action.meta.arg?.cursor);
+        if (append) state.isLoadingMore = true;
+        else state.isLoading = true;
       })
       .addCase(fetchPosts.fulfilled, (state, { payload }) => {
         state.isLoading = false;
+        state.isLoadingMore = false;
         state.isSuccess = true;
-        state.posts = payload;
+        const { items, nextCursor, hasMore, append } = payload;
+        state.nextCursor = nextCursor;
+        state.hasMore = hasMore;
+        state.posts = append ? [...state.posts, ...items] : items;
+        if (append) {
+          const byId = new Map(state.posts.map((p) => [p._id, p]));
+          for (const it of items) byId.set(it._id, it);
+          state.posts = Array.from(byId.values());
+        } else {
+          const seen = new Set();
+          state.posts = items.filter((it) =>
+            seen.has(it._id) ? false : (seen.add(it._id), true)
+          );
+        }
       })
       .addCase(fetchPosts.rejected, (state, { payload }) => {
         state.isLoading = false;
+        state.isLoadingMore = false;
         state.isError = true;
         state.message = payload;
       })
@@ -140,14 +159,13 @@ const postsSlice = createSlice({
         state.posts = state.posts.map((p) =>
           p._id === payload._id ? payload : p
         );
-        state.post = payload; 
+        state.post = payload;
       })
       .addCase(updatePost.rejected, (state, { payload }) => {
         state.isLoading = false;
         state.isError = true;
         state.message = payload;
       })
-
       .addCase(deletePost.pending, (state) => {
         state.isLoading = true;
       })

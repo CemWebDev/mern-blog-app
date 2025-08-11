@@ -22,16 +22,36 @@ export const createPostCtrl = createCtrl(async (body, _p, _q, req) => {
 }, 201);
 
 export const getPostsCtrl = createCtrl((_b, _p, query, req) => {
-  const { scope, authorId } = query;
+  const { scope, authorId, limit, cursor } = query;
 
   if (scope === 'mine') {
     if (!req.user?.id) {
       throw new Error('Unauthorized access to personal posts');
     }
+    if (limit) {
+      return postService.getPaginatedPosts({
+        limit: Number(limit),
+        cursor,
+        authorId: req.user.id,
+      });
+    }
     return postService.getPostsByAuthor(req.user.id);
   }
   if (authorId) {
+    if (limit) {
+      return postService.getPaginatedPosts({
+        limit: Number(limit),
+        cursor,
+        authorId: authorId,
+      });
+    }
     return postService.getPostsByAuthor(authorId);
+  }
+  if (limit) {
+    return postService.getPaginatedPosts({
+      limit: Number(limit),
+      cursor,
+    });
   }
   return postService.getAllPosts();
 });
@@ -44,8 +64,8 @@ export const updatePostCtrl = createCtrl(async (body, params, _q, req) => {
   return postService.updatePost(params.id, req.user.id, {
     title: body.title,
     content: body.content,
-    cover: mapCover(req.file), 
-    removeCover: body.removeCover === '1' || body.removeCover === true, 
+    cover: mapCover(req.file),
+    removeCover: body.removeCover === '1' || body.removeCover === true,
   });
 });
 

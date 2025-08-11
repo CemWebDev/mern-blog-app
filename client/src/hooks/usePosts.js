@@ -9,9 +9,16 @@ import {
 } from '../features/posts/postSlice';
 
 export const usePosts = () => {
-  const { posts, post, isLoading, isError, isSuccess, message } = useSelector(
-    (state) => state.posts
-  );
+  const {
+    posts,
+    post,
+    isLoading,
+    isError,
+    isSuccess,
+    message,
+    hasMore,
+    nextCursor,
+  } = useSelector((state) => state.posts);
 
   return {
     posts,
@@ -20,6 +27,8 @@ export const usePosts = () => {
     isError,
     isSuccess,
     message,
+    hasMore,
+    nextCursor,
   };
 };
 
