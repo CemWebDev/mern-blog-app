@@ -8,6 +8,8 @@ import PostSkeleton from '../components/Posts/PostSkeleton';
 import CreatePostCard from '../components/Posts/CreatePostCard';
 import { useInfinity } from '../hooks/useInfinity';
 
+const PAGE_SIZE = 12;
+
 const Posts = () => {
   const {
     posts,
@@ -22,7 +24,7 @@ const Posts = () => {
   const { getPosts } = usePostActions();
   const { user } = useAuth();
   useEffect(() => {
-    getPosts({ scope: 'mine', limit: 12 });
+    getPosts({ scope: 'mine', limit: PAGE_SIZE });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -32,8 +34,8 @@ const Posts = () => {
 
   const sentinelRef = useInfinity(
     () => {
-      if (hasMore && !isLoading) {
-        getPosts({ scope: 'mine', limit: 12, cursor: nextCursor });
+      if (hasMore && !isLoading && !isLoadingMore) {
+        getPosts({ scope: 'mine', limit: PAGE_SIZE, cursor: nextCursor });
       }
     },
     {
@@ -43,7 +45,6 @@ const Posts = () => {
       threshold: 0,
     }
   );
-
 
   return (
     <>
@@ -89,7 +90,13 @@ const Posts = () => {
                 <PostSkeleton key={`more-${i}`} />
               ))}
           </div>
-          {!hasMore && !isLoadingMore && (
+          {isLoadingMore && (
+            <div className="flex items-center justify-center mt-6 text-gray-500 text-sm">
+              <div className="w-4 h-4 mr-2 border-2 border-gray-300 border-t-emerald-500 rounded-full animate-spin" />
+              Daha fazlası yükleniyor…
+            </div>
+          )}
+          {!hasMore && !isLoadingMore && posts.length > PAGE_SIZE && (
             <div className="mt-8 text-center">
               <span className="inline-flex items-center px-4 py-2 rounded-full bg-gray-50 border border-gray-200 text-gray-600 text-sm">
                 Hepsi bu kadar 👋
