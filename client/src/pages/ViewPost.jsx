@@ -1,11 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
-import {
-  fetchPost,
-  deletePost,
-  resetPostsState,
-} from '../features/posts/postSlice';
+
 import Button from '../components/UI/Button/Button';
 import ConfirmModal from '../components/UI/Modal/Modal';
 import {
@@ -16,21 +12,24 @@ import {
   Calendar,
   AlertCircle,
 } from 'lucide-react';
-import { usePosts } from '../hooks/usePosts';
+
+import { usePosts, usePostActions } from '../hooks/usePosts';
 import { relative } from '../utils/time';
+import LikeButton from '../components/Posts/LikeButton';
 
 export default function ViewPost() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+
   const { post, isLoading, isError, message } = usePosts();
+  const { loadPostWithMeta, deleteExistingPost } = usePostActions();
+
   const authUser = useSelector((s) => s.auth.user);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
-    if (id) dispatch(fetchPost(id));
-    return () => dispatch(resetPostsState());
-  }, [dispatch, id]);
+    if (id) loadPostWithMeta(id);
+  }, [id]);
 
   const canEdit = useMemo(() => {
     if (!authUser || !post) return false;
@@ -54,7 +53,7 @@ export default function ViewPost() {
   const handleDeleteConfirm = async () => {
     if (!post?._id) return;
     try {
-      await dispatch(deletePost(post._id)).unwrap();
+      await deleteExistingPost(post._id).unwrap();
       navigate('/posts');
     } catch (e) {
       console.error(e);
@@ -142,26 +141,35 @@ export default function ViewPost() {
           Geri
         </Button>
 
-        {canEdit && (
-          <div className="flex gap-3">
-            <Button
-              size="tall"
-              variant="primary"
-              onClick={() => navigate(`/posts/${post._id}/edit`)}
-              leftIcon={<Edit className="w-4 h-4 shrink-0" />}
-            >
-              Düzenle
-            </Button>
-            <Button
-              size="tall"
-              variant="danger"
-              onClick={handleDeleteClick}
-              leftIcon={<Trash2 className="w-4 h-4 shrink-0" />}
-            >
-              Sil
-            </Button>
-          </div>
-        )}
+        <div className="flex gap-3">
+          <LikeButton
+            postId={post._id}
+            liked={!!post.liked}
+            likeCount={post.likeCount ?? 0}
+            size="md"
+          />
+
+          {canEdit && (
+            <>
+              <Button
+                size="tall"
+                variant="primary"
+                onClick={() => navigate(`/posts/${post._id}/edit`)}
+                leftIcon={<Edit className="w-4 h-4 shrink-0" />}
+              >
+                Düzenle
+              </Button>
+              <Button
+                size="tall"
+                variant="danger"
+                onClick={handleDeleteClick}
+                leftIcon={<Trash2 className="w-4 h-4 shrink-0" />}
+              >
+                Sil
+              </Button>
+            </>
+          )}
+        </div>
       </div>
 
       {post.cover?.url && (
@@ -205,6 +213,7 @@ export default function ViewPost() {
           </div>
         </div>
       </article>
+
       <ConfirmModal
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}

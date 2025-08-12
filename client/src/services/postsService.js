@@ -57,3 +57,30 @@ export const deletePost = async (postId) => {
   const { data } = await axiosInstance.delete(`/posts/${postId}`);
   return data;
 };
+
+/**
+ * @param {string} postId
+ * @returns {Promise<{ok: boolean}>}
+ */
+export const likePost = async (postId) => {
+  const { data } = await axiosInstance.put(`/posts/${postId}/like`);
+  return data;
+};
+
+/**
+ * @param {string} postId
+ * @returns {Promise<{ok: boolean}>}
+ */
+export const unlikePost = async (postId) => {
+  const { data } = await axiosInstance.delete(`/posts/${postId}/like`);
+  return data;
+};
+
+/**
+ * @param {string} postId
+ * @returns {Promise<{likeCount: number, liked: boolean}>}
+ */
+export const getPostLikeMeta = async (postId) => {
+  const { data } = await axiosInstance.get(`/posts/${postId}/like/meta`);
+  return data;
+};
