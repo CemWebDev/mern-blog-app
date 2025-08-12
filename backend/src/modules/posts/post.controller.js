@@ -23,38 +23,40 @@ export const createPostCtrl = createCtrl(async (body, _p, _q, req) => {
 }, 201);
 
 export const getPostsCtrl = createCtrl((_b, _p, query, req) => {
-  const { scope, authorId, limit, cursor } = query;
+  const { scope, authorId, limit, cursor, includeLike } = query;
+  const inc = includeLike === '1' || includeLike === 'true';
+  const common = { includeLike: inc, userId: req.user?.id };
 
   if (scope === 'mine') {
-    if (!req.user?.id) {
-      throw new Error('Unauthorized access to personal posts');
-    }
-    if (limit) {
+    if (!req.user?.id) throw new Error('Unauthorized access to personal posts');
+    if (limit)
       return postService.getPaginatedPosts({
         limit: Number(limit),
         cursor,
         authorId: req.user.id,
+        ...common,
       });
-    }
-    return postService.getPostsByAuthor(req.user.id);
+    return postService.getPostsByAuthor(req.user.id, inc, req.user.id);
   }
+
   if (authorId) {
-    if (limit) {
+    if (limit)
       return postService.getPaginatedPosts({
         limit: Number(limit),
         cursor,
-        authorId: authorId,
+        authorId,
+        ...common,
       });
-    }
-    return postService.getPostsByAuthor(authorId);
+    return postService.getPostsByAuthor(authorId, inc, req.user?.id);
   }
-  if (limit) {
+
+  if (limit)
     return postService.getPaginatedPosts({
       limit: Number(limit),
       cursor,
+      ...common,
     });
-  }
-  return postService.getAllPosts();
+  return postService.getAllPosts(inc, req.user?.id);
 });
 
 export const getPostCtrl = createCtrl((_b, params) =>
