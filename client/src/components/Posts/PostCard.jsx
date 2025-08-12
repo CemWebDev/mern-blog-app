@@ -1,56 +1,87 @@
 import { Link } from 'react-router-dom';
-import { CalendarDays, User as UserIcon } from 'lucide-react';
+import { CalendarDays, UserIcon } from 'lucide-react';
 import { truncate } from '../../utils/truncate';
 import CoverPlaceholder from './CoverPlaceholder';
+import LikeButton from './LikeButton';
+import { usePostActions } from '../../hooks/usePosts';
+import { useEffect } from 'react';
 
 export default function PostCard({ post }) {
   const date = post?.createdAt ? new Date(post.createdAt) : null;
   const coverUrl = post?.cover?.url;
+  const { getPostLikeMeta } = usePostActions();
+
+  useEffect(() => {
+    if (!post?._id) return;
+    const missingCount = typeof post.likeCount !== 'number';
+    const missingLiked = typeof post.liked !== 'boolean';
+    if (missingCount || missingLiked) getPostLikeMeta(post._id);
+  }, [post?._id, getPostLikeMeta]);
 
   return (
-    <article className="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-      <Link to={`/posts/${post._id}`} className="block">
+    <article className="bg-white border border-gray-100/50 rounded-3xl overflow-hidden shadow-sm backdrop-blur-sm">
+      <Link
+        to={`/posts/${post._id}`}
+        className="block relative overflow-hidden"
+      >
         {coverUrl ? (
-          <img
-            src={coverUrl}
-            alt={post.title}
-            className="w-full aspect-[16/9] object-cover"
-            loading="lazy"
-            decoding="async"
-          />
+          <div className="relative overflow-hidden">
+            <img
+              src={coverUrl || '/placeholder.svg'}
+              alt={post.title}
+              className="w-full aspect-[16/9] object-cover"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
         ) : (
-          <CoverPlaceholder title={post.title} />
+          <div className="relative">
+            <CoverPlaceholder title={post.title} />
+          </div>
         )}
       </Link>
 
-      <div className="p-5">
-        <Link to={`/posts/${post._id}`}>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
+      <div className="p-6 space-y-4">
+        <Link to={`/posts/${post._id}`} className="block">
+          <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2 leading-tight">
             {post.title}
           </h3>
         </Link>
 
-        <p className="text-gray-600 mb-4">{truncate(post.content)}</p>
+        <p className="text-gray-600 leading-relaxed text-sm">
+          {truncate(post.content)}
+        </p>
 
-        <div className="flex items-center justify-between text-sm text-gray-500">
-          <div className="flex items-center space-x-3">
-            <span className="inline-flex items-center">
-              <CalendarDays className="w-4 h-4 mr-1.5" />
-              {date ? date.toLocaleDateString('tr-TR') : '-'}
-            </span>
-            {post.author?.username && (
-              <span className="inline-flex items-center">
-                <UserIcon className="w-4 h-4 mr-1.5" />
-                {post.author.username}
-              </span>
-            )}
+        <div className="pt-5 border-t border-gray-100">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-6">
+              <div className="flex items-center text-xs text-gray-500">
+                <CalendarDays className="w-4 h-4 mr-2 text-gray-400" />
+                <span className="font-medium">
+                  {date ? date.toLocaleDateString('tr-TR') : '-'}
+                </span>
+              </div>
+
+              {post.author?.username && (
+                <div className="flex items-center text-xs text-gray-500">
+                  <UserIcon className="w-4 h-4 mr-2 text-gray-400" />
+                  <span className="font-medium">{post.author.username}</span>
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center gap-4">
+              <LikeButton
+                postId={post._id}
+                liked={!!post.liked}
+                likeCount={
+                  typeof post.likeCount === 'number' ? post.likeCount : 0
+                }
+                size="sm"
+              />
+              <Link to={`/posts/${post._id}`}>Şimdi Oku →</Link>
+            </div>
           </div>
-          <Link
-            to={`/posts/${post._id}`}
-            className="text-emerald-600 hover:text-emerald-700 font-medium"
-          >
-            Şimdi Oku →
-          </Link>
         </div>
       </div>
     </article>

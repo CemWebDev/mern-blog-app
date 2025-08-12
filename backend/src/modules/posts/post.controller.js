@@ -1,5 +1,6 @@
 import { createCtrl } from '../../utils/controllerFactory.js';
 import * as postService from './post.service.js';
+import * as likeService from '../likes/like.service.js';
 
 const mapCover = (file) =>
   file
@@ -73,3 +74,20 @@ export const deletePostCtrl = createCtrl(
   (_b, params, _q, req) => postService.deletePost(params.id, req.user.id),
   204
 );
+
+export const likePostCtrl = createCtrl(async (_b, params, _q, req) => {
+  const { id: postId } = params;
+  await likeService.likePost(postId, req.user.id);
+  return { ok: true };
+});
+
+export const unlikePostCtrl = createCtrl(async (_b, params, _q, req) => {
+  const { id: postId } = params;
+  await likeService.unlikePost(postId, req.user.id);
+  return { ok: true };
+});
+
+export const likeMetaCtrl = createCtrl(async (_b, params, _q, req) => {
+  const { id: postId } = params;
+  return likeService.getLikeMeta(postId, req.user?.id);
+});

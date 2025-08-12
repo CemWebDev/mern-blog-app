@@ -10,6 +10,8 @@ const initialState = {
   isError: false,
   isSuccess: false,
   message: '',
+  toggling: {},
+  optimisticBackup: {},
 };
 
 export const fetchPosts = createAsyncThunk(
@@ -77,6 +79,43 @@ export const deletePost = createAsyncThunk(
   }
 );
 
+export const fetchPostLikeMeta = createAsyncThunk(
+  'posts/fetchPostLikeMeta',
+  async (postId, thunkAPI) => {
+    try {
+      const data = await postsService.getPostLikeMeta(postId);
+      return { postId, ...data };
+    } catch (error) {
+      const message = error.response?.data?.message || error.message;
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+export const togglePostLike = createAsyncThunk(
+  'posts/togglePostLike',
+  async ({ postId, liked }, { dispatch, rejectWithValue }) => {
+    try {
+      if (liked) {
+        await postsService.unlikePost(postId);
+      } else {
+        await postsService.likePost(postId);
+      }
+      await dispatch(fetchPostLikeMeta(postId));
+      return { postId };
+    } catch (error) {
+      const message = error.response?.data?.message || error.message;
+      return rejectWithValue(message);
+    }
+  },
+  {
+    condition: ({ postId }, { getState }) => {
+      const { toggling } = getState().posts;
+      return !toggling[postId];
+    },
+  }
+);
+
 const postsSlice = createSlice({
   name: 'posts',
   initialState,
@@ -122,14 +161,34 @@ const postsSlice = createSlice({
         state.message = payload;
       })
 
-      .addCase(fetchPost.pending, (state) => {
+      .addCase(fetchPost.pending, (state, action) => {
         state.isLoading = true;
+        const id = action.meta.arg;
+        const cached =
+          (state.post && state.post._id === id && state.post) ||
+          state.posts.find((p) => p._id === id);
+        if (cached) {
+          state.post = { ...cached };
+        }
       })
       .addCase(fetchPost.fulfilled, (state, { payload }) => {
         state.isLoading = false;
         state.isSuccess = true;
-        state.post = payload;
+
+        const prev =
+          (state.post && state.post._id === payload._id && state.post) ||
+          state.posts.find((p) => p._id === payload._id);
+
+        const likeCount =
+          typeof prev?.likeCount === 'number'
+            ? prev.likeCount
+            : payload.likeCount;
+        const liked =
+          typeof prev?.liked === 'boolean' ? prev.liked : payload.liked;
+
+        state.post = { ...payload, likeCount, liked };
       })
+
       .addCase(fetchPost.rejected, (state, { payload }) => {
         state.isLoading = false;
         state.isError = true;
@@ -176,6 +235,74 @@ const postsSlice = createSlice({
       })
       .addCase(deletePost.rejected, (state, { payload }) => {
         state.isLoading = false;
+        state.isError = true;
+        state.message = payload;
+      })
+      .addCase(fetchPostLikeMeta.fulfilled, (state, { payload }) => {
+        const { postId, likeCount, liked } = payload;
+        const idx = state.posts.findIndex((p) => p._id === postId);
+        if (idx !== -1) {
+          state.posts[idx] = { ...state.posts[idx], likeCount, liked };
+        }
+        if (state.post && state.post._id === postId) {
+          state.post = { ...state.post, likeCount, liked };
+        }
+      })
+      .addCase(fetchPostLikeMeta.rejected, (state, { payload }) => {
+        state.message = payload;
+      })
+      .addCase(togglePostLike.pending, (state, { meta }) => {
+        const { postId, liked } = meta.arg;
+        state.toggling[postId] = true;
+
+        const inList = state.posts.find((p) => p._id === postId);
+        const inDetail =
+          state.post && state.post._id === postId ? state.post : null;
+
+        const getSafe = (p) => ({
+          liked: !!p?.liked,
+          likeCount: typeof p?.likeCount === 'number' ? p.likeCount : 0,
+        });
+        const backup = (inList && getSafe(inList)) ||
+          (inDetail && getSafe(inDetail)) || { liked: false, likeCount: 0 };
+        state.optimisticBackup[postId] = backup;
+
+        const applyOptimistic = (p) => {
+          if (!p) return p;
+          const count = typeof p.likeCount === 'number' ? p.likeCount : 0;
+          return {
+            ...p,
+            liked: !liked,
+            likeCount: liked ? Math.max(0, count - 1) : count + 1,
+          };
+        };
+
+        if (inList) {
+          state.posts = state.posts.map((p) =>
+            p._id === postId ? applyOptimistic(p) : p
+          );
+        }
+        if (inDetail) {
+          state.post = applyOptimistic(inDetail);
+        }
+      })
+      .addCase(togglePostLike.fulfilled, (state, { meta }) => {
+        const { postId } = meta.arg;
+        delete state.toggling[postId];
+        delete state.optimisticBackup[postId];
+      })
+      .addCase(togglePostLike.rejected, (state, { meta, payload }) => {
+        const { postId } = meta.arg;
+        const backup = state.optimisticBackup[postId];
+        const rollback = (p) => (p ? { ...p, ...backup } : p);
+        const idx = state.posts.findIndex((p) => p._id === postId);
+        if (idx !== -1) state.posts[idx] = rollback(state.posts[idx]);
+        if (state.post && state.post._id === postId)
+          state.post = rollback(state.post);
+
+        delete state.toggling[postId];
+        delete state.optimisticBackup[postId];
+
         state.isError = true;
         state.message = payload;
       });
