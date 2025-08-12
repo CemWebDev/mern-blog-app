@@ -5,10 +5,11 @@ import axiosInstance from './api';
  */
 
 export const getPosts = async (params = {}) => {
-  const { data } = await axiosInstance.get('/posts', { params });
-  if (Array.isArray(data)) {
+  const { data } = await axiosInstance.get('/posts', {
+    params: { includeLike: 1, ...params },
+  });
+  if (Array.isArray(data))
     return { items: data, nextCursor: null, hasMore: false };
-  }
   return data;
 };
 

@@ -1,5 +1,7 @@
 import Post from './post.model.js';
+import Like from '../likes/like.model.js';
 import { cloudinary } from '../../utils/cloudinary.js';
+import { attachLikeMeta } from '../../utils/attachLikeMeta.js';
 
 export const createPost = async ({ title, content, author, cover }) => {
   const post = { title, content, author };
@@ -9,33 +11,46 @@ export const createPost = async ({ title, content, author, cover }) => {
   return created.toObject();
 };
 
-export const getAllPosts = async () => {
-  return await Post.find({}, 'title content author cover createdAt updatedAt')
+export const getAllPosts = async (includeLike, userId) => {
+  let items = await Post.find(
+    {},
+    'title content author cover createdAt updatedAt'
+  )
     .sort({ createdAt: -1 })
     .populate('author', 'username')
     .lean();
+  if (includeLike) items = await attachLikeMeta(items, userId);
+  return items;
 };
 
-export const getPostsByAuthor = async (authorId) => {
-  return await Post.find(
+export const getPostsByAuthor = async (authorId, includeLike, userId) => {
+  let items = await Post.find(
     { author: authorId },
     'title content author cover createdAt updatedAt'
   )
     .sort({ createdAt: -1 })
     .populate('author', 'username')
     .lean();
+  if (includeLike) items = await attachLikeMeta(items, userId);
+  return items;
 };
 
 export const getPostById = async (id) => {
   return await Post.findById(id).populate('author', 'username').lean();
 };
 
-export const getPaginatedPosts = async ({ limit = 12, cursor, authorId }) => {
+export const getPaginatedPosts = async ({
+  limit = 12,
+  cursor,
+  authorId,
+  includeLike,
+  userId,
+}) => {
   const query = {};
   if (authorId) query.author = authorId;
   if (cursor) query.createdAt = { $lt: new Date(cursor) };
 
-  const items = await Post.find(
+  let items = await Post.find(
     query,
     'title content author cover createdAt updatedAt'
   )
@@ -47,10 +62,11 @@ export const getPaginatedPosts = async ({ limit = 12, cursor, authorId }) => {
   const hasMore = items.length > limit;
   if (hasMore) items.pop();
 
+  if (includeLike) items = await attachLikeMeta(items, userId);
+
   const nextCursor = hasMore
     ? items[items.length - 1].createdAt.toISOString()
     : null;
-
   return { items, nextCursor, hasMore };
 };
 
@@ -95,5 +111,8 @@ export const deletePost = async (id, userId) => {
     err.statusCode = 403;
     throw err;
   }
+  try {
+    await Like.deleteMany({ postId: id });
+  } catch (error) {}
   return;
 };
