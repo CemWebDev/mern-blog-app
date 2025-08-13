@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
 import Spinner from './components/UI/Spinner/Spinner';
+import AuthGate from './guards/AuthGate';
 
 const Home = lazy(() => import('./pages/Home'));
 const Login = lazy(() => import('./pages/Login'));
@@ -14,6 +15,7 @@ const Posts = lazy(() => import('./pages/Posts'));
 const EditPost = lazy(() => import('./pages/EditPost'));
 
 const ProtectedRoute = lazy(() => import('./guards/ProtectedRoute'));
+const PublicOnlyRoute = lazy(() => import('./guards/PublicOnlyRoute'));
 const DashboardLayout = lazy(() => import('./layouts/DashboardLayout'));
 
 export default function App() {
@@ -25,22 +27,26 @@ export default function App() {
         </div>
       }
     >
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/oauth-success" element={<OAuthSuccess />} />
-        <Route element={<ProtectedRoute />}>
-          <Route element={<DashboardLayout />}>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/new-post" element={<NewPost />} />
-            <Route path="/posts/:id" element={<ViewPost />} />
-            <Route path="/posts/:id/edit" element={<EditPost />} />
-            <Route path="/posts" element={<Posts />} />
+      <AuthGate>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route element={<PublicOnlyRoute />}>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/oauth-success" element={<OAuthSuccess />} />
           </Route>
-        </Route>
-      </Routes>
+          <Route element={<ProtectedRoute />}>
+            <Route element={<DashboardLayout />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/new-post" element={<NewPost />} />
+              <Route path="/posts/:id" element={<ViewPost />} />
+              <Route path="/posts/:id/edit" element={<EditPost />} />
+              <Route path="/posts" element={<Posts />} />
+            </Route>
+          </Route>
+        </Routes>
+      </AuthGate>
     </Suspense>
   );
 }

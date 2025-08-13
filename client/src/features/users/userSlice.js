@@ -1,5 +1,11 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import * as userService from '../../services/userService';
+import {
+  logoutUser,
+  setCredentials,
+  loginUser,
+  registerUser,
+} from '../auth/authSlice';
 
 const initialState = {
   profile: null,
@@ -72,6 +78,19 @@ const userSlice = createSlice({
       .addCase(updateProfile.rejected, (state, { payload }) => {
         state.isUpdating = false;
         state.updateError = payload || 'Failed to update profile';
+      })
+      .addCase(logoutUser.fulfilled, () => initialState)
+      .addCase(setCredentials, (state) => {
+        state.profile = null;
+        state.error = null;
+      })
+      .addCase(loginUser.fulfilled, (state) => {
+        state.profile = null;
+        state.error = null;
+      })
+      .addCase(registerUser.fulfilled, (state) => {
+        state.profile = null;
+        state.error = null;
       });
   },
 });
