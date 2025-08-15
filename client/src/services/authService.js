@@ -24,7 +24,7 @@ export const logout = async () => {
 };
 
 export const signWithGithub = () => {
-  window.location.href = `${API_URL}//auth/github`;
+  window.location.href = `${API_URL}/auth/github`;
 };
 /**
  * @param {File} file
