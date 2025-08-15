@@ -13,6 +13,7 @@ const NewPost = lazy(() => import('./pages/NewPost'));
 const ViewPost = lazy(() => import('./pages/ViewPost'));
 const Posts = lazy(() => import('./pages/Posts'));
 const EditPost = lazy(() => import('./pages/EditPost'));
+const NotFound = lazy(() => import('./pages/NotFound'));
 
 const ProtectedRoute = lazy(() => import('./guards/ProtectedRoute'));
 const PublicOnlyRoute = lazy(() => import('./guards/PublicOnlyRoute'));
@@ -45,6 +46,7 @@ export default function App() {
               <Route path="/posts" element={<Posts />} />
             </Route>
           </Route>
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </AuthGate>
     </Suspense>
