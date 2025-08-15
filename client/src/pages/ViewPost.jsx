@@ -131,44 +131,50 @@ export default function ViewPost() {
 
   return (
     <>
-      <div className="flex items-center justify-between mb-10">
-        <Button
-          size="tall"
-          variant="soft"
-          onClick={() => navigate(-1)}
-          leftIcon={<ArrowLeft className="w-4 h-4 shrink-0" />}
-        >
-          Geri
-        </Button>
+      <div className="mb-10">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <Button
+            size="tall"
+            variant="soft"
+            onClick={() => navigate(-1)}
+            leftIcon={<ArrowLeft className="w-4 h-4 shrink-0" />}
+            className="w-full sm:w-auto"
+          >
+            Geri
+          </Button>
+          <div className="flex items-center justify-center sm:justify-end gap-2">
+            <LikeButton
+              postId={post._id}
+              liked={!!post.liked}
+              likeCount={post.likeCount ?? 0}
+              size="md"
+            />
 
-        <div className="flex gap-3">
-          <LikeButton
-            postId={post._id}
-            liked={!!post.liked}
-            likeCount={post.likeCount ?? 0}
-            size="md"
-          />
-
-          {canEdit && (
-            <>
-              <Button
-                size="tall"
-                variant="primary"
-                onClick={() => navigate(`/posts/${post._id}/edit`)}
-                leftIcon={<Edit className="w-4 h-4 shrink-0" />}
-              >
-                Düzenle
-              </Button>
-              <Button
-                size="tall"
-                variant="danger"
-                onClick={handleDeleteClick}
-                leftIcon={<Trash2 className="w-4 h-4 shrink-0" />}
-              >
-                Sil
-              </Button>
-            </>
-          )}
+            {canEdit && (
+              <>
+                <Button
+                  size="md"
+                  variant="primary"
+                  onClick={() => navigate(`/posts/${post._id}/edit`)}
+                  leftIcon={<Edit className="w-4 h-4 shrink-0" />}
+                  className="min-w-0"
+                >
+                  <span className="hidden sm:inline">Düzenle</span>
+                  <span className="sm:hidden">Düzenle</span>
+                </Button>
+                <Button
+                  size="md"
+                  variant="danger"
+                  onClick={handleDeleteClick}
+                  leftIcon={<Trash2 className="w-4 h-4 shrink-0" />}
+                  className="min-w-0"
+                >
+                  <span className="hidden sm:inline">Sil</span>
+                  <span className="sm:hidden">Sil</span>
+                </Button>
+              </>
+            )}
+          </div>
         </div>
       </div>
 

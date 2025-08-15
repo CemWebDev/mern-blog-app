@@ -53,24 +53,26 @@ export default function PostCard({ post }) {
         </p>
 
         <div className="pt-5 border-t border-gray-100">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-6">
-              <div className="flex items-center text-xs text-gray-500">
-                <CalendarDays className="w-4 h-4 mr-2 text-gray-400" />
-                <span className="font-medium">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+            <div className="flex items-center gap-4 sm:gap-6 flex-wrap">
+              <div className="flex items-center text-xs bg-gray-50 px-3 py-2 rounded-full">
+                <CalendarDays className="w-4 h-4 mr-2 text-blue-500" />
+                <span className="font-semibold text-gray-700">
                   {date ? date.toLocaleDateString('tr-TR') : '-'}
                 </span>
               </div>
 
               {post.author?.username && (
-                <div className="flex items-center text-xs text-gray-500">
-                  <UserIcon className="w-4 h-4 mr-2 text-gray-400" />
-                  <span className="font-medium">{post.author.username}</span>
+                <div className="flex items-center text-xs bg-gray-50 px-3 py-2 rounded-full">
+                  <UserIcon className="w-4 h-4 mr-2 text-emerald-500" />
+                  <span className="font-semibold text-gray-700">
+                    {post.author.username}
+                  </span>
                 </div>
               )}
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4">
               <LikeButton
                 postId={post._id}
                 liked={!!post.liked}
@@ -79,7 +81,12 @@ export default function PostCard({ post }) {
                 }
                 size="sm"
               />
-              <Link to={`/posts/${post._id}`}>Şimdi Oku →</Link>
+              <Link
+                to={`/posts/${post._id}`}
+                className="inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 rounded-full whitespace-nowrap shadow-md"
+              >
+                Şimdi Oku →
+              </Link>
             </div>
           </div>
         </div>
