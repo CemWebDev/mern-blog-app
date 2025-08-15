@@ -1,5 +1,5 @@
 import axiosInstance from './api';
-const API_URL = 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL;
 
 /**
  * @param {{ username: string, email: string, password: string }} userData
