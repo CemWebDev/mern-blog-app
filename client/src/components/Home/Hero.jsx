@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth.js';
 import Button from '../UI/Button/Button.jsx';
-import Badge from './ui/Badge';
+import Badge from './UI/Badge';
 import PreviewCard from './UI/PreviewCard.jsx';
 import { Sparkles, Zap, ShieldCheck, BookOpen } from 'lucide-react';
 
