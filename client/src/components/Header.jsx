@@ -1,5 +1,5 @@
 import { useMemo, useState, useCallback } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useSelector, shallowEqual } from 'react-redux';
 import { FileText, PlusCircle, LogOut, Menu, X } from 'lucide-react';
 
@@ -10,6 +10,7 @@ import { useAuth, useAuthActions } from '../hooks/useAuth';
 export default function Header() {
   const { user: authUser } = useAuth();
   const { logout } = useAuthActions();
+  const navigate = useNavigate();
 
   const { profile } = useSelector(
     (s) => ({ profile: s.users.profile }),
@@ -39,21 +40,20 @@ export default function Header() {
     setIsMobileOpen(false);
   }, [logout]);
 
+  const handleRegisterClick = () => navigate('/register');
+  const handleLoginClick = () => navigate('/login');
+
   return (
-    <header className="bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-100 sticky top-0 z-50">
+    <header className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
-          <Link
-            to={homeHref}
-            className="flex items-center cursor-pointer group"
-          >
-            <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 via-green-500 to-teal-600 rounded-xl flex items-center justify-center mr-3 shadow-lg">
+        <div className="flex items-center justify-between h-16">
+          <Link to={homeHref} className="flex items-center cursor-pointer">
+            <div className="w-10 h-10 bg-emerald-500 rounded-lg flex items-center justify-center mr-3">
               <FileText className="w-6 h-6 text-white" />
             </div>
-            <div className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-700 bg-clip-text text-transparent tracking-tight">
-              MERN BLOG
-            </div>
+            <div className="text-xl font-bold text-gray-900">MERN BLOG</div>
           </Link>
+
           <nav className="hidden lg:flex items-center space-x-1">
             {[...primaryLinks, ...authedLinks].map(
               ({ to, label, icon: Icon }) => (
@@ -61,33 +61,34 @@ export default function Header() {
                   key={to}
                   to={to}
                   className={({ isActive }) =>
-                    `relative flex items-center px-4 py-2.5 rounded-xl font-medium transition-all duration-200 ${
+                    `flex items-center px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${
                       isActive
-                        ? 'text-emerald-700 bg-emerald-50 shadow-sm'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                        ? 'text-emerald-600 bg-emerald-50'
+                        : 'text-gray-600 hover:text-emerald-600 hover:bg-gray-50'
                     }`
                   }
                 >
-                  <Icon className="w-4 h-4 mr-2.5" />
+                  <Icon className="w-4 h-4 mr-2" />
                   {label}
                 </NavLink>
               )
             )}
 
             {currentUser ? (
-              <div className="flex items-center space-x-4 ml-6 pl-6 border-l border-gray-200">
-                <Link
-                  to="/profile"
-                  className="block rounded-full ring-2 ring-transparent hover:ring-emerald-200 transition-all duration-200"
-                >
-                  <Avatar size={42} src={currentUser.avatarUrl} />
+              <div className="flex items-center space-x-3 ml-6 pl-6 border-l border-gray-200">
+                <Link to="/profile" className="block rounded-full">
+                  <Avatar
+                    size={40}
+                    src={currentUser.avatarUrl}
+                    className="ring-2 ring-gray-100"
+                  />
                 </Link>
 
                 <Button
-                  variant="danger"
-                  size="tall"
-                  leftIcon={<LogOut className="w-4 h-4" />}
                   onClick={handleLogout}
+                  variant="danger"
+                  size="md"
+                  leftIcon={<LogOut className="w-4 h-4" />}
                 >
                   <span className="hidden xl:inline">Çıkış Yap</span>
                   <span className="xl:hidden">Çıkış</span>
@@ -95,16 +96,16 @@ export default function Header() {
               </div>
             ) : (
               <div className="flex items-center space-x-3 ml-6 pl-6 border-l border-gray-200">
-                <Link to="/register">
-                  <Button variant="primary" size="tall">
-                    Hesap Oluştur
-                  </Button>
-                </Link>
-                <Link to="/login">
-                  <Button variant="primary" size="tall">
-                    Giriş Yap
-                  </Button>
-                </Link>
+                <Button
+                  onClick={handleRegisterClick}
+                  variant="outline"
+                  size="md"
+                >
+                  Hesap Oluştur
+                </Button>
+                <Button onClick={handleLoginClick} variant="primary" size="md">
+                  Giriş Yap
+                </Button>
               </div>
             )}
           </nav>
@@ -114,7 +115,7 @@ export default function Header() {
               onClick={() => setIsMobileOpen((s) => !s)}
               aria-expanded={isMobileOpen}
               aria-controls="mobile-menu"
-              className="inline-flex items-center justify-center p-2.5 rounded-xl text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200"
+              className="inline-flex items-center justify-center p-2 rounded-lg text-gray-600 hover:text-emerald-600 hover:bg-gray-50"
             >
               {isMobileOpen ? (
                 <X className="h-6 w-6" />
@@ -124,12 +125,13 @@ export default function Header() {
             </button>
           </div>
         </div>
+
         {isMobileOpen && (
           <div
             id="mobile-menu"
-            className="lg:hidden border-t border-gray-100 bg-white/95 backdrop-blur-md"
+            className="lg:hidden border-t border-gray-100 bg-white shadow-lg"
           >
-            <div className="px-2 pt-4 pb-6 space-y-2">
+            <div className="px-4 py-4 space-y-2">
               {[...primaryLinks, ...authedLinks].map(
                 ({ to, label, icon: Icon }) => (
                   <NavLink
@@ -137,59 +139,63 @@ export default function Header() {
                     to={to}
                     onClick={() => setIsMobileOpen(false)}
                     className={({ isActive }) =>
-                      `flex items-center px-4 py-3 rounded-xl text-base font-medium transition-all duration-200 ${
+                      `flex items-center px-4 py-3 rounded-lg font-medium ${
                         isActive
-                          ? 'text-emerald-700 bg-emerald-50 shadow-sm'
-                          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                          ? 'text-emerald-600 bg-emerald-50'
+                          : 'text-gray-600 hover:text-emerald-600 hover:bg-gray-50'
                       }`
                     }
                   >
-                    <Icon className="w-4 h-4 mr-3" />
+                    <Icon className="w-5 h-5 mr-3" />
                     {label}
                   </NavLink>
                 )
               )}
 
               {currentUser ? (
-                <div className="border-t border-gray-100 pt-4 mt-4 space-y-3">
+                <div className="border-t border-gray-100 pt-4 mt-4 space-y-2">
                   <Link
                     to="/profile"
                     onClick={() => setIsMobileOpen(false)}
-                    className="flex items-center px-4 py-3 rounded-xl text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-all duration-200"
+                    className="flex items-center px-4 py-3 rounded-lg font-medium text-gray-600 hover:text-emerald-600 hover:bg-gray-50"
                   >
                     Profil
                   </Link>
 
                   <Button
-                    variant="danger"
-                    size="tall"
-                    leftIcon={<LogOut className="w-4 h-4" />}
                     onClick={handleLogout}
-                    className="w-full"
+                    variant="danger"
+                    size="md"
+                    fullWidth={true}
+                    leftIcon={<LogOut className="w-4 h-4" />}
                   >
                     Çıkış Yap
                   </Button>
                 </div>
               ) : (
-                <div className="border-t border-gray-100 pt-4 mt-4 space-y-3">
-                  <Link
-                    to="/register"
-                    onClick={() => setIsMobileOpen(false)}
-                    className="block w-full"
+                <div className="border-t border-gray-100 pt-4 mt-4 space-y-2">
+                  <Button
+                    onClick={() => {
+                      handleRegisterClick();
+                      setIsMobileOpen(false);
+                    }}
+                    variant="outline"
+                    size="md"
+                    fullWidth={true}
                   >
-                    <Button variant="primary" size="tall" className="w-full">
-                      Hesap Oluştur
-                    </Button>
-                  </Link>
-                  <Link
-                    to="/login"
-                    onClick={() => setIsMobileOpen(false)}
-                    className="block w-full"
+                    Hesap Oluştur
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      handleLoginClick();
+                      setIsMobileOpen(false);
+                    }}
+                    variant="primary"
+                    size="md"
+                    fullWidth={true}
                   >
-                    <Button variant="primary" size="tall" className="w-full">
-                      Giriş Yap
-                    </Button>
-                  </Link>
+                    Giriş Yap
+                  </Button>
                 </div>
               )}
             </div>
