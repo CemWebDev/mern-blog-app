@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Github, Twitter, Mail, FileText, Heart } from 'lucide-react';
+import { Github, Mail, FileText } from 'lucide-react';
 import { FooterLink } from './Footer/FooterLink';
 import { Social } from './Footer/Social';
 
@@ -13,13 +13,11 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="grid gap-10 md:grid-cols-3">
           <div>
-            <Link to="/" className="inline-flex items-center gap-2 group">
+            <Link to="/" className="inline-flex items-center gap-2">
               <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 via-green-500 to-teal-600 text-white grid place-items-center shadow-md">
                 <FileText className="w-5 h-5" />
               </div>
-              <span className="text-xl font-bold text-gray-900 group-hover:text-emerald-700 transition">
-                MERN BLOG
-              </span>
+              <span className="text-xl font-bold text-gray-900">MERN BLOG</span>
             </Link>
             <p className="mt-3 text-gray-600">
               Hızlı, temiz ve keyifli yazı deneyimi. Paylaş, ilham ver.
@@ -58,7 +56,9 @@ export default function Footer() {
           </nav>
 
           <div>
-            <h4 className="text-sm font-semibold text-gray-900">İletişim</h4>
+            <h4 className="text-sm font-semibold text-gray-900 hover:text-emerald-700 transition-colors cursor-default">
+              İletişim
+            </h4>
             <p className="mt-3 text-gray-600">
               Öneri ya da geri bildirimin var mı? Ulaşabilirsin.
             </p>
@@ -84,7 +84,7 @@ export default function Footer() {
               href="https://github.com/CemWebDev"
               target="_blank"
               rel="noreferrer"
-              className="text-sm font-medium text-gray-700 hover:text-emerald-700 transition text-center md:justify-self-center"
+              className="text-sm font-medium text-gray-700 hover:text-emerald-700 text-center md:justify-self-center"
             >
               CemWebDev tarafından geliştirildi
             </a>
