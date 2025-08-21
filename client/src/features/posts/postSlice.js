@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import * as postsService from '../../services/postsService';
+import { updateLikeCount } from '../users/userSlice';
 
 const initialState = {
   posts: [],
@@ -99,8 +100,10 @@ export const togglePostLike = createAsyncThunk(
     try {
       if (liked) {
         await postsService.unlikePost(postId);
+        dispatch(updateLikeCount(-1));
       } else {
         await postsService.likePost(postId);
+        dispatch(updateLikeCount(+1));
       }
       await dispatch(fetchPostLikeMeta(postId));
       return { postId };

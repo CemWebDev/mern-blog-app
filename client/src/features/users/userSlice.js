@@ -22,7 +22,7 @@ export const fetchMe = createAsyncThunk(
       const user = await userService.getMe();
       return user;
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.response.data);
+      return thunkAPI.rejectWithValue(error.response?.data || error.message);
     }
   }
 );
@@ -34,7 +34,7 @@ export const updateProfile = createAsyncThunk(
       const user = await userService.updateMe(data);
       return user;
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.response.data);
+      return thunkAPI.rejectWithValue(error.response?.data || error.message);
     }
   }
 );
@@ -51,6 +51,11 @@ const userSlice = createSlice({
     },
     setProfileManually: (state, { payload }) => {
       state.profile = payload;
+    },
+    updateLikeCount: (state, { payload }) => {
+      if (state.profile && typeof state.profile.likeCount === 'number') {
+        state.profile.likeCount += payload;
+      }
     },
   },
   extraReducers: (builder) => {
@@ -95,5 +100,6 @@ const userSlice = createSlice({
   },
 });
 
-export const { resetUserState, setProfileManually } = userSlice.actions;
+export const { resetUserState, setProfileManually, updateLikeCount } =
+  userSlice.actions;
 export default userSlice.reducer;
