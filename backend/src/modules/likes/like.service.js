@@ -40,3 +40,25 @@ export const getLikeMeta = async (postId, userId) => {
   ]);
   return { likeCount, liked: !!mine };
 };
+
+export const getLikedPosts = async (userId) => {
+  const likes = await Like.find({ userId }).select('postId');
+  const postIds = likes.map((like) => like.postId);
+
+  const posts = await Post.find({ _id: { $in: postIds } })
+    .populate('author', 'username')
+    .lean();
+
+  const postsWithMeta = await Promise.all(
+    posts.map(async (post) => {
+      const likeCount = await Like.countDocuments({ postId: post._id });
+      return {
+        ...post,
+        likeCount,
+        liked: true,
+      };
+    })
+  );
+
+  return postsWithMeta
+};

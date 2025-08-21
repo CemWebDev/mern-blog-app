@@ -93,3 +93,10 @@ export const likeMetaCtrl = createCtrl(async (_b, params, _q, req) => {
   const { id: postId } = params;
   return likeService.getLikeMeta(postId, req.user?.id);
 });
+
+export const getLikedPostsCtrl = createCtrl(
+  async (body, params, query, req) => {
+    const posts = await likeService.getLikedPosts(req.user.id);
+    return posts;
+  }
+);

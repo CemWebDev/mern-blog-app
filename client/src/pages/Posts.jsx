@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { usePostActions, usePosts } from '../hooks/usePosts';
+import { useSelector } from 'react-redux';
 import { useAuth } from '../hooks/useAuth';
 import { toastError } from '../utils/toast';
 import PostCard from '../components/Posts/PostCard';
@@ -23,6 +24,7 @@ const Posts = () => {
 
   const { getPosts } = usePostActions();
   const { user } = useAuth();
+  const { profile } = useSelector((state) => state.users);
   useEffect(() => {
     getPosts({ scope: 'mine', limit: PAGE_SIZE });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -52,7 +54,7 @@ const Posts = () => {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Gönderileriniz</h1>
           <p className="text-gray-600">
-            {isLoading ? 'Yükleniyor…' : `Toplam ${posts?.length ?? 0} gönderi`}
+            {isLoading ? 'Yükleniyor…' : `Toplam ${profile?.postCount} gönderi`}
           </p>
         </div>
       </div>

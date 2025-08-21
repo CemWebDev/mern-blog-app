@@ -85,3 +85,8 @@ export const getPostLikeMeta = async (postId) => {
   const { data } = await axiosInstance.get(`/posts/${postId}/like/meta`);
   return data;
 };
+
+export const getLikedPosts = async () => {
+  const { data } = await axiosInstance.get('/posts/liked');
+  return data;
+}

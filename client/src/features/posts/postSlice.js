@@ -3,6 +3,7 @@ import * as postsService from '../../services/postsService';
 
 const initialState = {
   posts: [],
+  likedPosts: [],
   nextCursor: null,
   hasMore: false,
   isLoading: false,
@@ -113,6 +114,18 @@ export const togglePostLike = createAsyncThunk(
       const { toggling } = getState().posts;
       return !toggling[postId];
     },
+  }
+);
+
+export const fetchLikedPosts = createAsyncThunk(
+  'posts/fetchLikedPosts',
+  async (_, thunkAPI) => {
+    try {
+      return await postsService.getLikedPosts();
+    } catch (error) {
+      const message = error.response?.data?.message || error.message;
+      return thunkAPI.rejectWithValue(message);
+    }
   }
 );
 
@@ -247,6 +260,23 @@ const postsSlice = createSlice({
         if (state.post && state.post._id === postId) {
           state.post = { ...state.post, likeCount, liked };
         }
+        const likedIdx = state.likedPosts.findIndex((p) => p._id === postId);
+        if (likedIdx !== -1) {
+          if (liked) {
+            state.likedPosts[likedIdx] = {
+              ...state.likedPosts[likedIdx],
+              likeCount,
+              liked,
+            };
+          } else {
+            state.likedPosts = state.likedPosts.filter((p) => p._id !== postId);
+          }
+        } else if (liked) {
+          const fromPosts = state.posts.find((p) => p._id === postId);
+          if (fromPosts) {
+            state.likedPosts.unshift({ ...fromPosts, likeCount, liked });
+          }
+        }
       })
       .addCase(fetchPostLikeMeta.rejected, (state, { payload }) => {
         state.message = payload;
@@ -285,6 +315,21 @@ const postsSlice = createSlice({
         if (inDetail) {
           state.post = applyOptimistic(inDetail);
         }
+
+        state.likedPosts = state.likedPosts.map((p) =>
+          p._id === postId
+            ? {
+                ...p,
+                liked: !liked,
+                likeCount: liked
+                  ? Math.max(0, (p.likeCount ?? 0) - 1)
+                  : (p.likeCount ?? 0) + 1,
+              }
+            : p
+        );
+        if (liked) {
+          state.likedPosts = state.likedPosts.filter((p) => p._id !== postId);
+        }
       })
       .addCase(togglePostLike.fulfilled, (state, { meta }) => {
         const { postId } = meta.arg;
@@ -305,6 +350,18 @@ const postsSlice = createSlice({
 
         state.isError = true;
         state.message = payload;
+      })
+      .addCase(fetchLikedPosts.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(fetchLikedPosts.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.likedPosts = action.payload;
+      })
+      .addCase(fetchLikedPosts.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
       });
   },
 });

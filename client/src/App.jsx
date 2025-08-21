@@ -14,6 +14,7 @@ const ViewPost = lazy(() => import('./pages/ViewPost'));
 const Posts = lazy(() => import('./pages/Posts'));
 const EditPost = lazy(() => import('./pages/EditPost'));
 const NotFound = lazy(() => import('./pages/NotFound'));
+const LikedPostsPage = lazy(() => import('./pages/LikedPostsPage'));
 
 const ProtectedRoute = lazy(() => import('./guards/ProtectedRoute'));
 const PublicOnlyRoute = lazy(() => import('./guards/PublicOnlyRoute'));
@@ -44,6 +45,7 @@ export default function App() {
               <Route path="/posts/:id" element={<ViewPost />} />
               <Route path="/posts/:id/edit" element={<EditPost />} />
               <Route path="/posts" element={<Posts />} />
+              <Route path="/liked-posts" element={<LikedPostsPage />} />
             </Route>
           </Route>
           <Route path="*" element={<NotFound />} />

@@ -9,11 +9,13 @@ import {
   fetchPostLikeMeta,
   togglePostLike,
   resetPostsState,
+  fetchLikedPosts,
 } from '../features/posts/postSlice';
 
 export const usePosts = () => {
   const {
     posts,
+    likedPosts,
     post,
     isLoading,
     isError,
@@ -36,6 +38,7 @@ export const usePosts = () => {
     hasMore,
     nextCursor,
     isToggling,
+    likedPosts,
   };
 };
 
@@ -61,6 +64,7 @@ export const usePostActions = () => {
   };
 
   const reset = () => dispatch(resetPostsState());
+  const getLikedPosts = () => dispatch(fetchLikedPosts());
 
   return {
     getPost,
@@ -72,5 +76,6 @@ export const usePostActions = () => {
     getPostLikeMeta,
     toggleLike,
     loadPostWithMeta,
+    getLikedPosts,
   };
 };

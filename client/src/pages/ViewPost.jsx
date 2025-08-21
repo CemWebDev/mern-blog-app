@@ -179,12 +179,14 @@ export default function ViewPost() {
       </div>
 
       {post.cover?.url && (
-        <div className="mb-10 rounded-xl overflow-hidden shadow-lg">
-          <img
-            src={post.cover.url || '/placeholder.svg'}
-            alt=""
-            className="w-full h-64 sm:h-80 object-cover"
-          />
+        <div className="mb-10">
+          <div className="relative rounded-lg overflow-hidden shadow-xl">
+            <img
+              src={post.cover.url || '/placeholder.svg'}
+              alt="Kapak Görseli"
+              className="w-full h-72 sm:h-96 lg:h-[28rem] object-cover"
+            />
+          </div>
         </div>
       )}
 

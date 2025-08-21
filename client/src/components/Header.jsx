@@ -1,7 +1,7 @@
 import { useMemo, useState, useCallback } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useSelector, shallowEqual } from 'react-redux';
-import { FileText, PlusCircle, LogOut, Menu, X } from 'lucide-react';
+import { FileText, PlusCircle, LogOut, Menu, X, Heart } from 'lucide-react';
 
 import Avatar from './UI/Avatar/Avatar';
 import Button from './UI/Button/Button';
@@ -27,13 +27,15 @@ export default function Header() {
     () => [{ to: '/posts', label: 'Yazılar', icon: FileText }],
     []
   );
-  const authedLinks = useMemo(
-    () =>
-      currentUser
-        ? [{ to: '/new-post', label: 'Yayınla', icon: PlusCircle }]
-        : [],
-    [currentUser]
-  );
+
+  const authedLinks = useMemo(() => {
+    if (!currentUser) return [];
+
+    return [
+      { to: '/new-post', label: 'Yayınla', icon: PlusCircle },
+      { to: '/liked-posts', label: 'Beğenilenler', icon: Heart },
+    ];
+  }, [currentUser]);
 
   const handleLogout = useCallback(() => {
     logout();

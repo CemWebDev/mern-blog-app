@@ -1,4 +1,6 @@
 import User from '../auth/auth.model.js';
+import Like from '../likes/like.model.js';
+import Post from '../posts/post.model.js';
 
 const sanitize = (user) => ({
   id: user._id.toString(),
@@ -19,10 +21,19 @@ export const getMe = async (_body, _params, _query, req) => {
   const userId = req.user?.id;
   if (!userId) throw httpError('Unauthorized', 401);
 
-  const me = await User.findById(userId).select('-password'); 
+  const me = await User.findById(userId).select('-password');
   if (!me) throw httpError('User not found', 404);
 
-  return { user: sanitize(me) };
+  const postCount = await Post.countDocuments({ author: userId });
+  const likeCount = await Like.countDocuments({ userId: userId });
+
+  return {
+    user: {
+      ...sanitize(me),
+      postCount,
+      likeCount,
+    },
+  };
 };
 
 export const updateMe = async (body, _params, _query, req) => {

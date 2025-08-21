@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { usePosts, usePostActions } from '../hooks/usePosts';
+import { useSelector } from 'react-redux';
 import WelcomeCard from '../components/Dashboard/WelcomeCard';
 import Button from '../components/UI/Button/Button';
 import PostCard from '../components/Posts/PostCard';
@@ -30,7 +31,9 @@ export default function Dashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const totalPosts = posts?.length ?? 0;
+  const {profile } = useSelector((state) => state.users)
+  const totalPosts = profile?.postCount ?? 0;
+
 
   return (
     <div className="space-y-12">
