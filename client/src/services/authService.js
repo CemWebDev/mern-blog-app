@@ -31,10 +31,6 @@ export const signWithGithub = () => {
  * @returns {Promise<{ avatarUrl: string }>}
  */
 export const uploadAvatar = async (file) => {
-  console.log(
-    '👉 uploadAvatar calling',
-    axiosInstance.defaults.baseURL + '/avatar/me/'
-  );
   const formData = new FormData();
   formData.append('avatar', file);
 
