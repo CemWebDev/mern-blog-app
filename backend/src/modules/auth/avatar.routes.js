@@ -1,15 +1,12 @@
 import express from 'express';
-import multer from 'multer';
 import { protect } from '../../middleware/auth.js';
-import { avatarStorage } from '../../utils/cloudinary.js';
 import User from './auth.model.js';
+import { uploadAvatar } from '../../middleware/upload.js';
 
 const router = express.Router();
-const upload = multer({ storage: avatarStorage });
 
-router.post('/me', protect, upload.single('avatar'), async (req, res, next) => {
+router.post('/me', protect, uploadAvatar, async (req, res, next) => {
   try {
-    console.log(req.user)
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ message: 'User not found' });
     user.avatarUrl = req.file.path;
