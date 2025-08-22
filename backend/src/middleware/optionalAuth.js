@@ -1,13 +1,9 @@
-import jwt from 'jsonwebtoken';
+import { getUserFromToken } from '../utils/authHelpers.js';
 
-export function optionalAuth(req, _res, next) {
-  const h = req.headers.authorization;
-  if (!h?.startsWith('Bearer ')) return next();
-  const token = h.split(' ')[1];
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = { id: decoded.id };
-  } catch {
+export const optionalAuth = (req, _res, next) => {
+  const user = getUserFromToken(req.headers.authorization);
+  if (user) {
+    req.user = user;
   }
   next();
-}
+};
